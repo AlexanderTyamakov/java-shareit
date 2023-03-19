@@ -34,8 +34,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> found = userRepository.getById(id);
         if (found.isEmpty()) {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
-        }
-        else log.info("Пользователь с id=" + id + " получен");
+        } else log.info("Пользователь с id=" + id + " получен");
         return UserDtoMapper.toUserDto(found.get());
     }
 
@@ -45,8 +44,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> saved = userRepository.save(userDto);
         if (saved.isEmpty()) {
             throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
-        }
-        else log.info("Пользователь с id=" + saved.get().getId() + " сохранен");
+        } else log.info("Пользователь с id=" + saved.get().getId() + " сохранен");
         return UserDtoMapper.toUserDto(saved.get());
     }
 
@@ -60,8 +58,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> updated = userRepository.update(id, userDto);
         if (updated.isEmpty()) {
             throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
-        }
-        else log.info("Пользователь с id=" + id + " обновлен");
+        } else log.info("Пользователь с id=" + id + " обновлен");
         return UserDtoMapper.toUserDto(updated.get());
     }
 
@@ -71,8 +68,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> deleted = userRepository.delete(id);
         if (deleted.isEmpty()) {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
-        }
-        else log.info("Пользователь с id=" + id + " удален");
+        } else log.info("Пользователь с id=" + id + " удален");
         return UserDtoMapper.toUserDto(deleted.get());
     }
 }
