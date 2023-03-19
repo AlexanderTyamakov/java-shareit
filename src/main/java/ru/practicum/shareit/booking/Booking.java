@@ -16,4 +16,3 @@ public class Booking {
     private Long booker;
     private BookingStatus status;
 }
-;
