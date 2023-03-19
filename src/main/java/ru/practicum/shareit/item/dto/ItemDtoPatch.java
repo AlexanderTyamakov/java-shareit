@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.item.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,9 @@ import lombok.ToString;
 @Setter
 @RequiredArgsConstructor
 @ToString
-public class User {
-    private final Long id;
+public class ItemDtoPatch {
     private final String name;
-    private final String email;
+    private final String description;
+    private final Boolean available;
+    private final Long request;
 }
