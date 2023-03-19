@@ -1,24 +1,23 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import ru.practicum.shareit.utils.Create;
+import ru.practicum.shareit.utils.Update;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Getter
 @Setter
 @RequiredArgsConstructor
 @ToString
 public class ItemDto {
-    @NonNull
-    @NotBlank(message = "Название не может быть пустым.")
+    private final Long id;
+    @NotEmpty(groups = {Create.class}, message = "Название не может быть пустым.")
     private final String name;
-    @NonNull
-    @NotBlank(message = "Название не может быть пустым.")
+    @NotEmpty(groups = {Create.class}, message = "Описание не может быть пустым.")
     private final String description;
-    @NonNull
+    @NotEmpty(groups = {Create.class}, message = "Доступность не может быть пустым.")
     private final Boolean available;
     private final Long request;
 }

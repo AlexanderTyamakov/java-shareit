@@ -11,10 +11,7 @@ import ru.practicum.shareit.item.dto.ItemDtoPatch;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -75,14 +72,15 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Item> search(long userId, String text) {
         userRepository.getById(userId);
+        if (text == null || text.isBlank()) {
+            return new ArrayList<>();
+        }
         List<Item> found = items.values().stream()
-                .filter(x -> (x.getName().toLowerCase().contains(text) || (x.getDescription().toLowerCase().contains(text))))
                 .filter(x -> x.getAvailable().equals(true))
+                .filter(x -> (x.getName().toLowerCase().contains(text) || (x.getDescription().toLowerCase().contains(text))))
                 .collect(Collectors.toList());
         if (found.size() == 0) {
             throw new ItemNotFoundException("Не найдены вещи по запросу query=" + text);
-        } else if (text == null || text.isBlank()) {
-            found.clear();
         }
         log.info("Найдены вещи по запросу query=" + text + ": " + found);
         return found;
