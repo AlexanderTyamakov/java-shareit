@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.Item;
 public class ItemDtoMapper {
     public static ItemDto toItemDto(Item item) {
         return new ItemDto(
+                item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
@@ -23,12 +24,12 @@ public class ItemDtoMapper {
         );
     }
 
-    public static Item patchToItem(ItemDtoPatch itemDtoPatch, Item item, long id, long owner) {
+    public static Item patchToItem(ItemDto itemDto, Item item, long id, long owner) {
         return new Item(
                 id,
-                (itemDtoPatch.getName() != null && !itemDtoPatch.getName().isEmpty()) ? itemDtoPatch.getName() : item.getName(),
-                (itemDtoPatch.getDescription() != null && !itemDtoPatch.getDescription().isEmpty()) ? itemDtoPatch.getDescription() : item.getDescription(),
-                itemDtoPatch.getAvailable() != null ? itemDtoPatch.getAvailable() : item.getAvailable(),
+                (itemDto.getName() != null && !itemDto.getName().isEmpty()) ? itemDto.getName() : item.getName(),
+                (itemDto.getDescription() != null && !itemDto.getDescription().isEmpty()) ? itemDto.getDescription() : item.getDescription(),
+                itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable(),
                 owner,
                 null
         );

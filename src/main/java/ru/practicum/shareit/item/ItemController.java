@@ -3,21 +3,19 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoPatch;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.utils.Create;
+import ru.practicum.shareit.utils.Update;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -26,32 +24,32 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId) {
         return itemService.getAllItemsOfUser(userId);
     }
 
     @GetMapping("/{itemId}")
-    public Item getItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
+    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
         return itemService.getItemById(userId, itemId);
     }
 
     @PostMapping
-    public Item saveItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDto saveItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated(Create.class) ItemDto itemDto) {
         return itemService.saveItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public Item updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDtoPatch itemDtoPatch, @PathVariable Long itemId) {
-        return itemService.updateItem(userId, itemDtoPatch, itemId);
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated(Update.class) ItemDto itemDto, @PathVariable Long itemId) {
+        return itemService.updateItem(userId, itemDto, itemId);
     }
 
     @GetMapping("/search")
-    public List<Item> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
+    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
         return itemService.searchItem(userId, text);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handle(final ValidationException e) {
         return new ErrorResponse(
                 "Ошибка в отправленных данных", e.getMessage()

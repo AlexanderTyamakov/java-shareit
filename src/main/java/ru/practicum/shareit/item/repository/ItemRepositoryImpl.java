@@ -3,14 +3,11 @@ package ru.practicum.shareit.item.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.item.dto.ItemDtoPatch;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ValidationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,36 +34,28 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item getById(long userId, long itemId) {
-        if (!items.containsKey(itemId)) {
-            throw new ItemNotFoundException("Вещь с id=" + itemId + " не найдена");
-        }
-        log.info("Получена вещь с id=" + itemId + " пользователя с id=" + userId);
-        return items.get(itemId);
+    public Optional<Item> getById(long userId, long itemId) {
+        return Optional.ofNullable(items.get(itemId));
     }
 
     @Override
     public Item save(long userId, ItemDto itemDto) {
-        userRepository.getById(userId);
         long id = getId();
         Item item = ItemDtoMapper.toItem(itemDto, id, userId);
         items.put(id, item);
-        log.info("Сохранена вещь " + item + " пользователя с id=" + userId);
         return item;
     }
 
     @Override
-    public Item update(long userId, ItemDtoPatch itemDtoPatch, Long itemId) {
-        if (!items.containsKey(itemId)) {
-            throw new ItemNotFoundException("Вещь с id=" + itemId + " не найдена");
-        }
+    public Optional<Item> update(long userId, ItemDto itemDto, Long itemId) {
+        Item item;
         if (items.get(itemId).getOwner() != userId) {
-            throw new ValidationException("Пользователь с id=" + userId + " не является владельцем вещи с id=" + itemId);
+            item = null;
+        } else {
+            item = ItemDtoMapper.patchToItem(itemDto, items.get(itemId), itemId, userId);
+            items.put(itemId, item);
         }
-        Item item = ItemDtoMapper.patchToItem(itemDtoPatch, items.get(itemId), itemId, userId);
-        items.put(itemId, item);
-        log.info("Обновлена вещь " + item + " пользователя с id=" + userId);
-        return item;
+        return Optional.ofNullable(item);
     }
 
     @Override
@@ -75,15 +64,10 @@ public class ItemRepositoryImpl implements ItemRepository {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
-        List<Item> found = items.values().stream()
+        return items.values().stream()
                 .filter(x -> x.getAvailable().equals(true))
                 .filter(x -> (x.getName().toLowerCase().contains(text) || (x.getDescription().toLowerCase().contains(text))))
                 .collect(Collectors.toList());
-        if (found.size() == 0) {
-            throw new ItemNotFoundException("Не найдены вещи по запросу query=" + text);
-        }
-        log.info("Найдены вещи по запросу query=" + text + ": " + found);
-        return found;
     }
 
     private long getId() {
