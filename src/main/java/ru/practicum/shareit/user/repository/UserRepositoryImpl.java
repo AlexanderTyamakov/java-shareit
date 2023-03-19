@@ -19,9 +19,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return users.values().stream()
-                .sorted(Comparator.comparing(User::getId))
-                .collect(Collectors.toList());
+        return users.values().stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList());
     }
 
     @Override

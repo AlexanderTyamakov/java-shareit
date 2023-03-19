@@ -23,9 +23,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         log.info("Возвращен список всех пользователей");
-        return userRepository.findAll().stream()
-                .map(UserDtoMapper::toUserDto)
-                .collect(Collectors.toList());
+        return userRepository.findAll().stream().map(UserDtoMapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override
@@ -36,8 +34,8 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
         } else {
             log.info("Пользователь с id=" + id + " получен");
+            return UserDtoMapper.toUserDto(found.get());
         }
-        return UserDtoMapper.toUserDto(found.get());
     }
 
     @Override
@@ -48,8 +46,8 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
         } else {
             log.info("Пользователь с id=" + saved.get().getId() + " сохранен");
+            return UserDtoMapper.toUserDto(saved.get());
         }
-        return UserDtoMapper.toUserDto(saved.get());
     }
 
     @Override
@@ -64,8 +62,8 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
         } else {
             log.info("Пользователь с id=" + id + " обновлен");
+            return UserDtoMapper.toUserDto(updated.get());
         }
-        return UserDtoMapper.toUserDto(updated.get());
     }
 
     @Override
@@ -76,7 +74,7 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
         } else {
             log.info("Пользователь с id=" + id + " удален");
+            return UserDtoMapper.toUserDto(deleted.get());
         }
-        return UserDtoMapper.toUserDto(deleted.get());
     }
 }
