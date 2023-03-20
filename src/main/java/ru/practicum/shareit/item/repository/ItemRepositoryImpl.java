@@ -1,12 +1,10 @@
 package ru.practicum.shareit.item.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,19 +12,11 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ItemRepositoryImpl implements ItemRepository {
-    private final UserRepository userRepository;
     private final Map<Long, Item> items = new HashMap<>();
     private long itemRepositoryId;
 
-    @Autowired
-    public ItemRepositoryImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     @Override
     public List<Item> findAll(long userId) {
-        userRepository.getById(userId);
-        log.info("Получены все вещи пользователя с id=" + userId);
         return items.values().stream()
                 .filter(x -> x.getOwner() == userId)
                 .sorted(Comparator.comparing(Item::getId))
@@ -34,7 +24,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Optional<Item> getById(long userId, long itemId) {
+    public Optional<Item> getById(long itemId) {
         return Optional.ofNullable(items.get(itemId));
     }
 
@@ -59,8 +49,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> search(long userId, String text) {
-        userRepository.getById(userId);
+    public List<Item> search(String text) {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }

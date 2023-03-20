@@ -10,12 +10,12 @@ public interface ItemRepository {
 
     List<Item> findAll(long userId);
 
-    Optional<Item> getById(long userId, long itemId);
+    Optional<Item> getById(long itemId);
 
     Item save(long userId, ItemDto itemDto);
 
     Optional<Item> update(long userId, ItemDto itemDto, Long itemId);
 
-    List<Item> search(long userId, String text);
+    List<Item> search(String text);
 
 }

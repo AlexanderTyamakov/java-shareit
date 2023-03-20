@@ -25,6 +25,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItemsOfUser(long userId) {
+        if (userRepository.getById(userId).isEmpty()) {
+            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден");
+        }
         log.info("Возвращен список вещей пользователя с id={}", userId);
         return itemRepository.findAll(userId).stream()
                 .map(ItemDtoMapper::toItemDto)
@@ -34,7 +37,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItemById(long userId, long itemId) {
         log.info("Поиск вещи с id={}", itemId);
-        Optional<Item> found = itemRepository.getById(userId, itemId);
+        Optional<Item> found = itemRepository.getById(itemId);
         if (found.isEmpty()) {
             throw new ItemNotFoundException("Вещь с id=" + itemId + " не найдена");
         } else log.info("Получена вещь с id=" + itemId + " пользователя с id=" + userId);
@@ -58,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(long userId, ItemDto itemDto, Long itemId) {
         log.info("Изменения вещи с id={}", userId);
-        Optional<Item> found = itemRepository.getById(userId, itemId);
+        Optional<Item> found = itemRepository.getById(itemId);
         if (found.isEmpty()) {
             throw new ItemNotFoundException("Вещь с id=" + itemId + " не найдена");
         }
@@ -72,7 +75,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchItem(long userId, String text) {
         log.info("Поиск вещи по запросу {}", text);
-        List<Item> foundList = itemRepository.search(userId, text.toLowerCase());
+        if (userRepository.getById(userId).isEmpty()) {
+            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден");
+        }
+        List<Item> foundList = itemRepository.search(text.toLowerCase());
         log.info("Найдены вещи по запросу query=" + text + ": " + foundList);
         return foundList.stream()
                 .map(ItemDtoMapper::toItemDto)
