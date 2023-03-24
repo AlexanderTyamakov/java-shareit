@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handle(final ValidationException e) {
         return new ErrorResponse(
                 "Ошибка в отправленных данных", e.getMessage()

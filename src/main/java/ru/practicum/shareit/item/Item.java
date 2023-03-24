@@ -1,19 +1,39 @@
 package ru.practicum.shareit.item;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import ru.practicum.shareit.user.User;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-@ToString
+import javax.persistence.*;
+
+@Entity
+@Table(name = "items", schema = "public")
+@Getter @Setter @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
-    private final Long id;
-    private final String name;
-    private final String description;
-    private final Boolean available;
-    private final Long owner;
-    private final Long request;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column
+    private String name;
+    @Column
+    private String description;
+    @Column
+    private Boolean available;
+    @Column
+    private Long owner;
+    @Column
+    private Long request;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        return id != null && id.equals(((User) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

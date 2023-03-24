@@ -19,6 +19,14 @@ public class UserDtoMapper {
         );
     }
 
+    public static User toNewUser(UserDto userDto) {
+        return new User(
+                userDto.getId(),
+                userDto.getName(),
+                userDto.getEmail()
+        );
+    }
+
     public static User patchToUser(UserDto userDto, User user, Long id) {
         return new User(
                 id,
