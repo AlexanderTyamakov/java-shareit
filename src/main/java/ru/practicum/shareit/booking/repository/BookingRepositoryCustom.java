@@ -3,12 +3,9 @@ package ru.practicum.shareit.booking.repository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.BookingStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface BookingRepositoryCustom {
 
@@ -50,5 +47,5 @@ public interface BookingRepositoryCustom {
 
     @Query(value = "select b from Booking b where b.item = ?1 and " +
             " b.booker = ?2 and b.status not in (?3) and b.end < CURRENT_TIMESTAMP ")
-    List<Booking> findByItemAndBookerAndStatus (long itemId, long userId, BookingStatus bookingStatus);
+    List<Booking> findByItemAndBookerAndStatus(long itemId, long userId, BookingStatus bookingStatus);
 }

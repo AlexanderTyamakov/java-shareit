@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.Comment;
@@ -107,9 +106,9 @@ public class ItemServiceImpl implements ItemService {
     public CommentDtoOut addComment(long userId, CommentDtoIn commentDtoIn, long itemId) {
         log.info("Сохранение комментария" + commentDtoIn + " для вещи id = " + itemId);
         User user = handleOptionalUser(userRepository.findById(userId), userId);
-        List<Booking> bookings = bookingRepository.findByItemAndBookerAndStatus(itemId,userId,BookingStatus.REJECTED);
+        List<Booking> bookings = bookingRepository.findByItemAndBookerAndStatus(itemId, userId, BookingStatus.REJECTED);
         if (bookings.size() == 0) {
-           throw new ValidationException("Бронирование пользователем id = " + userId + " товара id = " + " не найдено");
+            throw new ValidationException("Бронирование пользователем id = " + userId + " товара id = " + " не найдено");
         }
         handleOptionalItem(itemRepository.findById(itemId), itemId);
         Comment comment = ItemDtoMapper.ToComment(commentDtoIn, itemId, userId, LocalDateTime.now());
@@ -143,7 +142,7 @@ public class ItemServiceImpl implements ItemService {
         ItemDto itemDto;
         handleOptionalUser(userRepository.findById(item.getOwner()), item.getOwner());
         List<CommentDtoOut> commentDtoOuts = commentRepository.findAllByItemIdIsOrderByCreatedDesc(item.getId()).stream()
-                .map(x->ItemDtoMapper.ToCommentDtoOut(x,handleOptionalUser(userRepository.findById(x.getAuthorId()),x.getAuthorId()).getName()))
+                .map(x -> ItemDtoMapper.ToCommentDtoOut(x, handleOptionalUser(userRepository.findById(x.getAuthorId()), x.getAuthorId()).getName()))
                 .collect(Collectors.toList());
         if (!owner) {
             itemDto = ItemDtoMapper.toItemDto(item, commentDtoOuts);

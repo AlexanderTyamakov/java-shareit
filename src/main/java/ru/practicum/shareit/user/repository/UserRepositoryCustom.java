@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.repository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface UserRepositoryCustom {

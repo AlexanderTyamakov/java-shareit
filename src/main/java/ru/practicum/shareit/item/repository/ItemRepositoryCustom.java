@@ -1,15 +1,10 @@
 package ru.practicum.shareit.item.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.User;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public interface ItemRepositoryCustom  {
 

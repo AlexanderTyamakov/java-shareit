@@ -4,9 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.shareit.utils.Create;
-
-import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
