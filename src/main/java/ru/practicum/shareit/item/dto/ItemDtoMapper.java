@@ -4,6 +4,7 @@ import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,12 +66,12 @@ public class ItemDtoMapper {
         );
     }
 
-    public static Comment toComment(CommentDtoIn commentDtoIn, long itemId, long authorId, LocalDateTime created) {
+    public static Comment toComment(CommentDtoIn commentDtoIn, Item item, User author, LocalDateTime created) {
         return new Comment(
                 0L,
                 commentDtoIn.getText(),
-                itemId,
-                authorId,
+                item,
+                author,
                 created
         );
     }

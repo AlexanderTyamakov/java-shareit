@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.UserRepository;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,12 +34,11 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение бронирования id = " + bookingId);
         handleOptionalUser(userRepository.findById(userId), userId);
         Booking booking = handleOptionalBooking(bookingRepository.findById(bookingId), bookingId);
-        Item item = handleOptionalItem(itemRepository.findById(booking.getItem()), booking.getItem());
-        if (booking.getBooker() != userId && item.getOwner() != userId) {
+        if (booking.getBooker().getId() != userId && booking.getItem().getOwner() != userId) {
             throw new BookingNotFoundException("Запрос статуса бронирования поступил не от владельца вещи или автора заявки");
         }
         log.info("Получено бронирование id = " + bookingId);
-        return BookingDtoMapper.toBookingDtoOut(booking, item);
+        return BookingDtoMapper.toBookingDtoOut(booking, booking.getItem());
     }
 
     @Override
@@ -56,38 +54,34 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         log.info("Получение списка бронирования для пользователя id = " + userId + " по state = " + state);
-        handleOptionalUser(userRepository.findById(userId), userId);
+        User user = handleOptionalUser(userRepository.findById(userId), userId);
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.WAITING);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(user);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(user);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerAndPastOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user);
                 break;
             case ALL:
-                bookings = bookingRepository.findAllByBookerIsOrderByStartDesc(userId);
+                bookings = bookingRepository.findAllByBookerIsOrderByStartDesc(user);
                 break;
         }
         if (bookings.size() == 0) {
             return new ArrayList<>();
         }
-        List<Long> idOfItems = bookings.stream()
-                .map(Booking::getItem).collect(Collectors.toList());
-        Map<Long, Item> bookerItems = itemRepository.findAllByIdInOrderById(idOfItems).stream()
-                .collect(Collectors.toMap(Item::getId, i -> i));
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
-                .map(x -> BookingDtoMapper.toBookingDtoOut(x, bookerItems.get(x.getItem())))
+                .map(x -> BookingDtoMapper.toBookingDtoOut(x, x.getItem()))
                 .collect(Collectors.toList());
     }
 
@@ -105,41 +99,37 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Получение списка бронирования для владельца id = " + userId + " по state = " + state);
         handleOptionalUser(userRepository.findById(userId), userId);
-        List<Long> idOfOwnerItems = itemRepository.findAllByOwnerIsOrderById(userId).stream()
-                .map(Item::getId)
-                .collect(Collectors.toList());
-        if (idOfOwnerItems.size() == 0) {
+        List<Item> OwnerItems = itemRepository.findAllByOwnerIsOrderById(userId);
+        if (OwnerItems.size() == 0) {
             return new ArrayList<>();
         }
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case REJECTED:
-                bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(idOfOwnerItems, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(idOfOwnerItems, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(OwnerItems, BookingStatus.WAITING);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(idOfOwnerItems);
+                bookings = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(OwnerItems);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(idOfOwnerItems);
+                bookings = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(OwnerItems);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItemAndPastOrderByStartDesc(idOfOwnerItems);
+                bookings = bookingRepository.findAllByItemAndPastOrderByStartDesc(OwnerItems);
                 break;
             case ALL:
-                bookings = bookingRepository.findAllByItemInOrderByStartDesc(idOfOwnerItems);
+                bookings = bookingRepository.findAllByItemInOrderByStartDesc(OwnerItems);
                 break;
         }
         if (bookings.size() == 0) {
             return new ArrayList<>();
         }
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
-        Map<Long, Item> ownerItems = itemRepository.findAllByOwnerIsOrderById(userId).stream()
-                .collect(Collectors.toMap(Item::getId, i -> i));
         return bookings.stream()
-                .map(x -> BookingDtoMapper.toBookingDtoOut(x, ownerItems.get(x.getItem())))
+                .map(x -> BookingDtoMapper.toBookingDtoOut(x, x.getItem()))
                 .collect(Collectors.toList());
 
     }
@@ -150,7 +140,7 @@ public class BookingServiceImpl implements BookingService {
         if (bookingDtoIn.getEnd().isBefore(bookingDtoIn.getStart()) || bookingDtoIn.getEnd().isEqual(bookingDtoIn.getStart())) {
             throw new ValidationException("Дата конца бронирования раньше или равна дате начала");
         }
-        handleOptionalUser(userRepository.findById(userId), userId);
+        User user = handleOptionalUser(userRepository.findById(userId), userId);
         Item item = handleOptionalItem(itemRepository.findById(bookingDtoIn.getItemId()), bookingDtoIn.getItemId());
         if (!item.getAvailable()) {
             throw new ValidationException("Товар с id = " + item.getId() + " недоступен для бронирования");
@@ -158,7 +148,7 @@ public class BookingServiceImpl implements BookingService {
         if (userId == item.getOwner()) {
             throw new ItemNotFoundException("Запрошено бронирование " + item + " владельцем");
         }
-        Booking saved = bookingRepository.save(BookingDtoMapper.toBooking(bookingDtoIn, userId));
+        Booking saved = bookingRepository.save(BookingDtoMapper.toBooking(bookingDtoIn, item, user));
         log.info("Сохранено бронирование " + saved + " пользователя с id = " + userId);
         return BookingDtoMapper.toBookingDtoOut(saved, item);
     }
@@ -168,8 +158,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Обновление статуса бронирования с id = " + bookingId);
         handleOptionalUser(userRepository.findById(userId), userId);
         Booking booking = handleOptionalBooking(bookingRepository.findById(bookingId), bookingId);
-        Item item = handleOptionalItem(itemRepository.findById(booking.getItem()), booking.getItem());
-        if (item.getOwner() != userId) {
+        if (booking.getItem().getOwner() != userId) {
             throw new BookingNotFoundException("Запрос на изменение статуса бронирования поступил не от владельца вещи");
         }
         BookingStatus bookingStatus = approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
@@ -179,14 +168,15 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.changeStatusById(bookingStatus, bookingId);
         log.info("Обновлен статус бронирования с id = " + bookingId);
         Booking newBooking = handleOptionalBooking(bookingRepository.findById(bookingId), bookingId);
-        return BookingDtoMapper.toBookingDtoOut(newBooking, item);
+        return BookingDtoMapper.toBookingDtoOut(newBooking, booking.getItem());
     }
 
 
-    private void handleOptionalUser(Optional<User> user, long id) {
+    private User handleOptionalUser(Optional<User> user, long id) {
         if (user.isEmpty()) {
             throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
         }
+        return user.orElseThrow();
     }
 
     private Item handleOptionalItem(Optional<Item> item, long id) {

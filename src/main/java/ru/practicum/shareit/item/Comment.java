@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.*;
+import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,10 +18,12 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String text;
-    @Column(name = "item_id")
-    private Long itemId;
-    @Column(name = "author_id")
-    private Long authorId;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item itemId;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User authorId;
     private LocalDateTime created;
 
 

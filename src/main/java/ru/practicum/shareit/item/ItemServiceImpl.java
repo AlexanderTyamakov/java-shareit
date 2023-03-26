@@ -41,35 +41,29 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
         List<ItemDto> itemDtoList = new ArrayList<>();
-        List<Long> itemsId = items.stream().map(Item::getId).collect(Collectors.toList());
-        List<Booking> bookings = bookingRepository.findAllByItemInAndStatusIsNot(itemsId, BookingStatus.REJECTED);
-        List<Comment> comments = commentRepository.findAllByItemIdIn(itemsId);
-        List<Long> commentaryAuthors = comments.stream().map(Comment::getAuthorId).collect(Collectors.toList());
-        Map<Long, String> commentaryUpdatedNames = userRepository.findAllByIdInOrderById(commentaryAuthors).stream()
-                .collect(Collectors.toMap(User::getId, User::getName));
-        Map<Item, List<LastBookingDto>> lastBookingDtoMap = new HashMap<>();
-        Map<Item, List<NextBookingDto>> nextBookingDtoMap = new HashMap<>();
+        List<Booking> bookings = bookingRepository.findAllByItemInAndStatusIsNot(items, BookingStatus.REJECTED);
+        List<Comment> comments = commentRepository.findAllByItemIdIn(items);
+        Map<Item, LastBookingDto> lastBookingDtoMap = new HashMap<>();
+        Map<Item, NextBookingDto> nextBookingDtoMap = new HashMap<>();
         Map<Item, List<CommentDtoOut>> commentDtoOutMap = new HashMap<>();
         for (Item item : items) {
             lastBookingDtoMap.put(item, bookings.stream()
-                    .filter(x -> Objects.equals(x.getItem(), item.getId()))
+                    .filter(x -> Objects.equals(x.getItem(), item))
                     .filter(x -> x.getStart().isBefore(LocalDateTime.now()))
                     .sorted(Comparator.comparing(Booking::getStart).reversed()).map(BookingDtoMapper::lastBookingDto)
-                    .collect(Collectors.toList()));
+                    .findFirst().orElse(null));
             nextBookingDtoMap.put(item, bookings.stream()
-                    .filter(x -> Objects.equals(x.getItem(), item.getId()))
+                    .filter(x -> Objects.equals(x.getItem(), item))
                     .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
                     .sorted(Comparator.comparing(Booking::getStart)).map(BookingDtoMapper::nextBookingDto)
-                    .collect(Collectors.toList()));
+                    .findFirst().orElse(null));
             commentDtoOutMap.put(item, comments.stream()
-                    .filter(x -> Objects.equals(x.getItemId(), item.getId()))
-                    .map(x -> ItemDtoMapper.toCommentDtoOut(x, commentaryUpdatedNames.get(x.getId())))
+                    .filter(x -> Objects.equals(x.getItemId(), item))
+                    .map(x -> ItemDtoMapper.toCommentDtoOut(x, x.getAuthorId().getName()))
                     .collect(Collectors.toList()));
         }
         for (Item item : items) {
-            LastBookingDto lastBookingDto = (lastBookingDtoMap.get(item).size() == 0) ? null : lastBookingDtoMap.get(item).get(0);
-            NextBookingDto nextBookingDto = (nextBookingDtoMap.get(item).size() == 0) ? null : nextBookingDtoMap.get(item).get(0);
-            itemDtoList.add(ItemDtoMapper.toItemDto(item, lastBookingDto, nextBookingDto, commentDtoOutMap.get(item)));
+            itemDtoList.add(ItemDtoMapper.toItemDto(item, lastBookingDtoMap.get(item), nextBookingDtoMap.get(item), commentDtoOutMap.get(item)));
         }
         return itemDtoList;
     }
@@ -135,12 +129,12 @@ public class ItemServiceImpl implements ItemService {
     public CommentDtoOut addComment(long userId, CommentDtoIn commentDtoIn, long itemId) {
         log.info("Сохранение комментария " + commentDtoIn + " для вещи id = " + itemId);
         User user = handleOptionalUser(userRepository.findById(userId), userId);
-        List<Booking> bookings = bookingRepository.findByItemAndBookerAndStatus(itemId, userId, BookingStatus.REJECTED);
+        Item item = handleOptionalItem(itemRepository.findById(itemId), itemId);
+        List<Booking> bookings = bookingRepository.findByItemAndBookerAndStatus(item, user, BookingStatus.REJECTED);
         if (bookings.size() == 0) {
             throw new ValidationException("Бронирование пользователем id = " + userId + " вещи id = " + " не найдено");
         }
-        handleOptionalItem(itemRepository.findById(itemId), itemId);
-        Comment comment = ItemDtoMapper.toComment(commentDtoIn, itemId, userId, LocalDateTime.now());
+        Comment comment = ItemDtoMapper.toComment(commentDtoIn, item, user, LocalDateTime.now());
         commentRepository.save(comment);
         Comment created = commentRepository.findFirstByOrderByIdDesc();
         return ItemDtoMapper.toCommentDtoOut(created, user.getName());
@@ -163,28 +157,25 @@ public class ItemServiceImpl implements ItemService {
     private ItemDto mapWithBookingsAndComments(Item item, boolean owner) {
         ItemDto itemDto;
 
-        List<Comment> comments = commentRepository.findAllByItemIdIsOrderByCreatedDesc(item.getId());
-        List<Long> commentaryAuthors = comments.stream().map(Comment::getAuthorId).collect(Collectors.toList());
-        Map<Long, String> commentaryUpdatedNames = userRepository.findAllByIdInOrderById(commentaryAuthors).stream()
-                .collect(Collectors.toMap(User::getId, User::getName));
+        List<Comment> comments = commentRepository.findAllByItemIdIsOrderByCreatedDesc(item);
         List<CommentDtoOut> commentDtoOuts = comments.stream()
-                .map(x -> ItemDtoMapper.toCommentDtoOut(x, commentaryUpdatedNames.get(x.getAuthorId())))
+                .map(x -> ItemDtoMapper.toCommentDtoOut(x, x.getAuthorId().getName()))
                 .collect(Collectors.toList());
 
         if (!owner) {
             itemDto = ItemDtoMapper.toItemDto(item, commentDtoOuts);
         } else {
-            List<Booking> bookings = bookingRepository.findAllByItemIsAndStatusNot(item.getId(), BookingStatus.REJECTED);
-            List<Booking> lastBooking = bookings.stream()
+            List<Booking> bookings = bookingRepository.findAllByItemIsAndStatusNot(item, BookingStatus.REJECTED);
+            LastBookingDto lastBookingDto = bookings.stream()
                     .filter(x -> x.getStart().isBefore(LocalDateTime.now()))
                     .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
-            List<Booking> nextBooking = bookings.stream()
+                    .map(BookingDtoMapper::lastBookingDto)
+                    .findFirst().orElse(null);
+            NextBookingDto nextBookingDto = bookings.stream()
                     .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
                     .sorted(Comparator.comparing(Booking::getStart))
-                    .collect(Collectors.toList());
-            LastBookingDto lastBookingDto = (lastBooking.size() == 0) ? null : BookingDtoMapper.lastBookingDto(lastBooking.get(0));
-            NextBookingDto nextBookingDto = (nextBooking.size() == 0) ? null : BookingDtoMapper.nextBookingDto(nextBooking.get(0));
+                    .map(BookingDtoMapper::nextBookingDto)
+                    .findFirst().orElse(null);
             itemDto = ItemDtoMapper.toItemDto(item, lastBookingDto, nextBookingDto, commentDtoOuts);
         }
         return itemDto;
