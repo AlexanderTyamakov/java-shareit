@@ -14,7 +14,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, Booking
 
     List<Booking> findAllByItemInOrderByStartDesc(List<Long> items);
 
-    List<Booking> findAllByItemIsAndStatusNot(Long itemId,BookingStatus bookingStatus);
+    List<Booking> findAllByItemIsAndStatusNot(Long itemId, BookingStatus bookingStatus);
 
-    List<Booking> findAllByItemInAndStatusIsNot(List<Long>itemsId, BookingStatus bookingStatus);
+    List<Booking> findAllByItemInAndStatusIsNot(List<Long> itemsId, BookingStatus bookingStatus);
 }

@@ -61,8 +61,8 @@ public class ItemServiceImpl implements ItemService {
                     .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
                     .sorted(Comparator.comparing(Booking::getStart)).map(BookingDtoMapper::nextBookingDto)
                     .collect(Collectors.toList()));
-            commentDtoOutMap.put(item, comments.stream().
-                    filter(x -> Objects.equals(x.getItemId(), item.getId()))
+            commentDtoOutMap.put(item, comments.stream()
+                    .filter(x -> Objects.equals(x.getItemId(), item.getId()))
                     .map(x -> ItemDtoMapper.toCommentDtoOut(x, commentaryUpdatedNames.get(x.getId())))
                     .collect(Collectors.toList()));
         }
