@@ -37,14 +37,18 @@ public class BookingDtoMapper {
     public static LastBookingDto lastBookingDto(Booking booking) {
         return new LastBookingDto(
                 booking.getId(),
-                booking.getBooker()
+                booking.getBooker(),
+                booking.getStart(),
+                booking.getEnd()
         );
     }
 
     public static NextBookingDto nextBookingDto(Booking booking) {
         return new NextBookingDto(
                 booking.getId(),
-                booking.getBooker()
+                booking.getBooker(),
+                booking.getStart(),
+                booking.getEnd()
         );
     }
 }

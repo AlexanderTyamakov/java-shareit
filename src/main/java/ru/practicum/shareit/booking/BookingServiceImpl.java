@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.UserRepository;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -80,9 +81,13 @@ public class BookingServiceImpl implements BookingService {
         if (bookings.size() == 0) {
             return new ArrayList<>();
         }
+        List<Long> idOfItems = bookings.stream()
+                .map(Booking::getItem).collect(Collectors.toList());
+        Map<Long, Item> bookerItems = itemRepository.findAllByIdInOrderById(idOfItems).stream()
+                .collect(Collectors.toMap(Item::getId, i -> i));
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
-                .map(x -> BookingDtoMapper.toBookingDtoOut(x, handleOptionalItem(itemRepository.findById(x.getItem()),x.getItem())))
+                .map(x -> BookingDtoMapper.toBookingDtoOut(x, bookerItems.get(x.getItem())))
                 .collect(Collectors.toList());
     }
 
@@ -107,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
             return new ArrayList<>();
         }
         List<Booking> bookings = new ArrayList<>();
-           switch (state) {
+        switch (state) {
             case REJECTED:
                 bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(idOfOwnerItems, BookingStatus.REJECTED);
                 break;
@@ -131,8 +136,10 @@ public class BookingServiceImpl implements BookingService {
             return new ArrayList<>();
         }
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
+        Map<Long, Item> ownerItems = itemRepository.findAllByOwnerIsOrderById(userId).stream()
+                .collect(Collectors.toMap(Item::getId, i -> i));
         return bookings.stream()
-                .map(x -> BookingDtoMapper.toBookingDtoOut(x, handleOptionalItem(itemRepository.findById(x.getItem()),x.getItem())))
+                .map(x -> BookingDtoMapper.toBookingDtoOut(x, ownerItems.get(x.getItem())))
                 .collect(Collectors.toList());
 
     }

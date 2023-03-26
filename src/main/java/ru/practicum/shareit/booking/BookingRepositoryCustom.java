@@ -2,8 +2,6 @@ package ru.practicum.shareit.booking;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingStatus;
 
 import java.util.List;
 
@@ -36,14 +34,6 @@ public interface BookingRepositoryCustom {
     @Query(value = "select b from Booking b where b.item in (?1) and " +
             " b.end < CURRENT_TIMESTAMP order by b.start desc ")
     List<Booking> findAllByItemAndPastOrderByStartDesc(List<Long> items);
-
-    @Query(value = "select b from Booking b where b.item in (?1) and " +
-            "b.status not in (?2) and b.start > CURRENT_TIMESTAMP order by b.start asc ")
-    List<Booking> findNextBooking(Long item, BookingStatus bookingStatus);
-
-    @Query(value = "select b from Booking b where b.item = ?1 and " +
-            " b.status not in (?2) and b.start < CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findLastBooking(long itemId, BookingStatus bookingStatus);
 
     @Query(value = "select b from Booking b where b.item = ?1 and " +
             " b.booker = ?2 and b.status not in (?3) and b.end < CURRENT_TIMESTAMP ")

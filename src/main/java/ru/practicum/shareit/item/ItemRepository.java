@@ -8,4 +8,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
 
     List<Item> findAllByOwnerIsOrderById(long userId);
 
+    List<Item> findAllByIdInOrderById(List<Long> id);
+
 }

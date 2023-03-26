@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS items(
                                     owner_id     BIGINT NOT NULL,
                                     request_id   BIGINT,
                                     CONSTRAINT pk_item PRIMARY KEY (id),
-                                    FOREIGN KEY (owner_id) REFERENCES users (ID) ON UPDATE CASCADE
+                                    CONSTRAINT fk_item_user FOREIGN KEY (owner_id) REFERENCES users (ID) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS booking(
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS booking(
                                     booker_id    BIGINT NOT NULL,
                                     status       VARCHAR(16) NOT NULL,
                                     CONSTRAINT pk_booking PRIMARY KEY (id),
-                                    FOREIGN KEY (item_id) REFERENCES items (ID) ON UPDATE CASCADE,
-                                    FOREIGN KEY (booker_id) REFERENCES users (ID) ON UPDATE CASCADE
+                                    CONSTRAINT fk_booking_item FOREIGN KEY (item_id) REFERENCES items (ID) ON UPDATE CASCADE,
+                                    CONSTRAINT fk_booking_user FOREIGN KEY (booker_id) REFERENCES users (ID) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS comments(
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS comments(
                                     author_id    BIGINT NOT NULL,
                                     created      TIMESTAMP WITHOUT TIME ZONE NOT NULL,
                                     CONSTRAINT pk_comment PRIMARY KEY (id),
-                                    FOREIGN KEY (item_id) REFERENCES items (ID) ON UPDATE CASCADE,
-                                    FOREIGN KEY (author_id) REFERENCES users (ID) ON UPDATE CASCADE
+                                    CONSTRAINT fk_comment_item FOREIGN KEY (item_id) REFERENCES items (ID) ON UPDATE CASCADE,
+                                    CONSTRAINT fk_comment_user FOREIGN KEY (author_id) REFERENCES users (ID) ON UPDATE CASCADE
 );
 
 
