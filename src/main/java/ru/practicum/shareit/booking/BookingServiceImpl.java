@@ -1,22 +1,18 @@
-package ru.practicum.shareit.booking.service;
+package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingState;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
-import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
@@ -43,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getBooker() != userId && item.getOwner() != userId) {
             throw new BookingNotFoundException("Запрос статуса бронирования поступил не от владельца вещи или автора заявки");
         }
-        log.info("Получено бронирования id = " + bookingId);
+        log.info("Получено бронирование id = " + bookingId);
         return BookingDtoMapper.toBookingDtoOut(booking, item);
     }
 
@@ -62,12 +58,6 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение списка бронирования для пользователя id = " + userId + " по state = " + state);
         handleOptionalUser(userRepository.findById(userId), userId);
         List<Booking> bookings = new ArrayList<>();
-        log.info("Внимание booker" + userId + " REJECTED" + LocalDateTime.now() + bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED));
-        log.info("Внимание booker" + userId + " WAITING" + LocalDateTime.now() + bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(userId, BookingStatus.WAITING));
-        log.info("Внимание booker" + userId + " CURRENT" + LocalDateTime.now() + bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(userId));
-        log.info("Внимание booker" + userId + " FUTURE" + LocalDateTime.now() + bookingRepository.findAllByBookerAndFutureOrderByStartDesc(userId));
-        log.info("Внимание booker" + userId + " PAST" + LocalDateTime.now() + bookingRepository.findAllByBookerAndPastOrderByStartDesc(userId));
-        log.info("Внимание booker" + userId + " ALL" + LocalDateTime.now() + bookingRepository.findAllByBookerIsOrderByStartDesc(userId));
         switch (state) {
             case REJECTED:
                 bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED);
@@ -93,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
-                .map(x -> BookingDtoMapper.toBookingDtoOut(x, itemRepository.findById(x.getItem()).orElseThrow()))
+                .map(x -> BookingDtoMapper.toBookingDtoOut(x, handleOptionalItem(itemRepository.findById(x.getItem()),x.getItem())))
                 .collect(Collectors.toList());
     }
 
@@ -118,13 +108,7 @@ public class BookingServiceImpl implements BookingService {
             return new ArrayList<>();
         }
         List<Booking> bookings = new ArrayList<>();
-        log.info("Внимание owner" + userId + " REJECTED" + LocalDateTime.now() + bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(idOfOwnerItems, BookingStatus.REJECTED));
-        log.info("Внимание owner" + userId + " WAITING" + LocalDateTime.now() + bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(idOfOwnerItems, BookingStatus.WAITING));
-        log.info("Внимание owner" + userId + " CURRENT" + LocalDateTime.now() + bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(idOfOwnerItems));
-        log.info("Внимание owner" + userId + " FUTURE" + LocalDateTime.now() + bookingRepository.findAllByItemsAndFutureOrderByStartDesc(idOfOwnerItems));
-        log.info("Внимание owner" + userId + " PAST" + LocalDateTime.now() + bookingRepository.findAllByItemAndPastOrderByStartDesc(idOfOwnerItems));
-        log.info("Внимание owner" + userId + " ALL" + LocalDateTime.now() + bookingRepository.findAllByItemInOrderByStartDesc(idOfOwnerItems));
-        switch (state) {
+           switch (state) {
             case REJECTED:
                 bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(idOfOwnerItems, BookingStatus.REJECTED);
                 break;
@@ -149,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
         return bookings.stream()
-                .map(x -> BookingDtoMapper.toBookingDtoOut(x, itemRepository.findById(x.getItem()).orElseThrow()))
+                .map(x -> BookingDtoMapper.toBookingDtoOut(x, handleOptionalItem(itemRepository.findById(x.getItem()),x.getItem())))
                 .collect(Collectors.toList());
 
     }

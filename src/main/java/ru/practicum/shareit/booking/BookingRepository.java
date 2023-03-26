@@ -1,8 +1,6 @@
-package ru.practicum.shareit.booking.repository;
+package ru.practicum.shareit.booking;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingStatus;
 
 import java.util.List;
 

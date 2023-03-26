@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.service;
+package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,10 +6,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +31,6 @@ public class UserServiceImpl implements UserService {
         User found = handleOptionalUser(userRepository.findById(id), id);
         log.info("Пользователь с id=" + id + " получен");
         return UserDtoMapper.toUserDto(found);
-
     }
 
     @Override
@@ -45,6 +42,7 @@ public class UserServiceImpl implements UserService {
         } catch (DataIntegrityViolationException e) {
             throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
         }
+        log.info("Сохранен пользователь с id = " + saved.getId());
         return UserDtoMapper.toUserDto(saved);
     }
 
@@ -53,11 +51,11 @@ public class UserServiceImpl implements UserService {
         log.info("Изменение пользователя с id={}", id);
         User found = handleOptionalUser(userRepository.findById(id), id);
         if (userRepository.getAllEmailsExceptUserById(id).contains(userDto.getEmail())) {
-            throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
+            throw new ValidationException("Пользователь с email = " + userDto.getEmail() + " уже есть в коллекции");
         }
         User toUpdate = UserDtoMapper.patchToUser(userDto, found, id);
         userRepository.updateUserById(toUpdate.getName(), toUpdate.getEmail(), id);
-        log.info("Пользователь с id=" + id + " обновлен");
+        log.info("Обновлен пользователь с id =" + id);
         return UserDtoMapper.toUserDto(toUpdate);
     }
 

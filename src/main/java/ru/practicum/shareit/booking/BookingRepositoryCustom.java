@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.repository;
+package ru.practicum.shareit.booking;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +14,7 @@ public interface BookingRepositoryCustom {
     void changeStatusById(BookingStatus approved, long bookingId);
 
     @Query(value = "select b from Booking b where b.booker = ?1 and " +
-            " b.start > CURRENT_TIMESTAMP and b.end < CURRENT_TIMESTAMP order by b.start desc ")
+            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start desc ")
     List<Booking> findAllByBookerAndCurrentOrderByStartDesc(long userId);
 
     @Query(value = "select b from Booking b where b.booker = ?1 and " +
@@ -42,7 +42,7 @@ public interface BookingRepositoryCustom {
     List<Booking> findNextBooking(Long item, BookingStatus bookingStatus);
 
     @Query(value = "select b from Booking b where b.item = ?1 and " +
-            " b.status not in (?2) and b.end < CURRENT_TIMESTAMP order by b.start desc ")
+            " b.status not in (?2) and b.start < CURRENT_TIMESTAMP order by b.start desc ")
     List<Booking> findLastBooking(long itemId, BookingStatus bookingStatus);
 
     @Query(value = "select b from Booking b where b.item = ?1 and " +

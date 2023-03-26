@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.service;
+package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,19 +8,15 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
-import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
-import ru.practicum.shareit.item.Comment;
-import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.item.repository.CommentRepository;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.UserRepository;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
@@ -41,7 +37,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItemsOfUser(long userId) {
         handleOptionalUser(userRepository.findById(userId), userId);
-        log.info("Возвращен список вещей пользователя с id={}", userId);
+        log.info("Возвращен список вещей пользователя с id = {}", userId);
         return itemRepository.findAllByOwnerIsOrderById(userId).stream()
                 .map(x -> mapWithBookingsAndComments(x, true))
                 .collect(Collectors.toList());
@@ -96,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
         List<Item> foundList = itemRepository.searchByNameAndDescription(text.toLowerCase());
-        log.info("Найдены вещи по запросу query=" + text + ": " + foundList);
+        log.info("Найдены вещи по запросу query = " + text + ": " + foundList);
         return foundList.stream()
                 .map(x -> mapWithBookingsAndComments(x, false))
                 .collect(Collectors.toList());
@@ -104,11 +100,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDtoOut addComment(long userId, CommentDtoIn commentDtoIn, long itemId) {
-        log.info("Сохранение комментария" + commentDtoIn + " для вещи id = " + itemId);
+        log.info("Сохранение комментария " + commentDtoIn + " для вещи id = " + itemId);
         User user = handleOptionalUser(userRepository.findById(userId), userId);
         List<Booking> bookings = bookingRepository.findByItemAndBookerAndStatus(itemId, userId, BookingStatus.REJECTED);
         if (bookings.size() == 0) {
-            throw new ValidationException("Бронирование пользователем id = " + userId + " товара id = " + " не найдено");
+            throw new ValidationException("Бронирование пользователем id = " + userId + " вещи id = " + " не найдено");
         }
         handleOptionalItem(itemRepository.findById(itemId), itemId);
         Comment comment = ItemDtoMapper.toComment(commentDtoIn, itemId, userId, LocalDateTime.now());
@@ -117,25 +113,18 @@ public class ItemServiceImpl implements ItemService {
         return ItemDtoMapper.toCommentDtoOut(created, user.getName());
     }
 
-
     private User handleOptionalUser(Optional<User> user, long id) {
         if (user.isEmpty()) {
-            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
         }
         return user.orElseThrow();
     }
 
     private Item handleOptionalItem(Optional<Item> item, long id) {
         if (item.isEmpty()) {
-            throw new ItemNotFoundException("Вещь с id =" + id + " не найдена");
+            throw new ItemNotFoundException("Вещь с id = " + id + " не найдена");
         }
         return item.orElseThrow();
-    }
-
-    private void handleOptionalBooking(Optional<Booking> booking, long itemId, long userId) {
-        if (booking.isEmpty()) {
-            throw new ValidationException("Бронирование пользователем id = " + userId + " товара id = " + " не найдено");
-        }
     }
 
     private ItemDto mapWithBookingsAndComments(Item item, boolean owner) {
