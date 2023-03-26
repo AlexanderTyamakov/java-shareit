@@ -65,7 +65,7 @@ public class ItemDtoMapper {
         );
     }
 
-    public static Comment ToComment(CommentDtoIn commentDtoIn, long itemId, long authorId, LocalDateTime created) {
+    public static Comment toComment(CommentDtoIn commentDtoIn, long itemId, long authorId, LocalDateTime created) {
         return new Comment(
                 0L,
                 commentDtoIn.getText(),
@@ -75,7 +75,7 @@ public class ItemDtoMapper {
         );
     }
 
-    public static CommentDtoOut ToCommentDtoOut(Comment comment, String author) {
+    public static CommentDtoOut toCommentDtoOut(Comment comment, String author) {
         return new CommentDtoOut(
                 comment.getId(),
                 comment.getText(),

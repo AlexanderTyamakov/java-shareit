@@ -111,10 +111,10 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Бронирование пользователем id = " + userId + " товара id = " + " не найдено");
         }
         handleOptionalItem(itemRepository.findById(itemId), itemId);
-        Comment comment = ItemDtoMapper.ToComment(commentDtoIn, itemId, userId, LocalDateTime.now());
+        Comment comment = ItemDtoMapper.toComment(commentDtoIn, itemId, userId, LocalDateTime.now());
         commentRepository.save(comment);
         Comment created = commentRepository.findFirstByOrderByIdDesc();
-        return ItemDtoMapper.ToCommentDtoOut(created, user.getName());
+        return ItemDtoMapper.toCommentDtoOut(created, user.getName());
     }
 
 
@@ -142,7 +142,7 @@ public class ItemServiceImpl implements ItemService {
         ItemDto itemDto;
         handleOptionalUser(userRepository.findById(item.getOwner()), item.getOwner());
         List<CommentDtoOut> commentDtoOuts = commentRepository.findAllByItemIdIsOrderByCreatedDesc(item.getId()).stream()
-                .map(x -> ItemDtoMapper.ToCommentDtoOut(x, handleOptionalUser(userRepository.findById(x.getAuthorId()), x.getAuthorId()).getName()))
+                .map(x -> ItemDtoMapper.toCommentDtoOut(x, handleOptionalUser(userRepository.findById(x.getAuthorId()), x.getAuthorId()).getName()))
                 .collect(Collectors.toList());
         if (!owner) {
             itemDto = ItemDtoMapper.toItemDto(item, commentDtoOuts);
