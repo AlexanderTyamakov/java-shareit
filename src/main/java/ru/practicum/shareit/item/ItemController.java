@@ -6,8 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ErrorResponse;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDtoIn;
+import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.utils.Create;
@@ -48,6 +49,11 @@ public class ItemController {
         return itemService.searchItem(userId, text);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentDtoOut addComment(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated CommentDtoIn commentDtoIn, @PathVariable Long itemId) {
+        return itemService.addComment(userId, commentDtoIn, itemId);
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handle(final ValidationException e) {
@@ -58,18 +64,9 @@ public class ItemController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handle(final ItemNotFoundException e) {
+    public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
                 "Вещь не найдена", e.getMessage()
         );
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handle(final UserNotFoundException e) {
-        return new ErrorResponse(
-                "Пользователь не найден", e.getMessage()
-        );
-    }
-
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.item;
 
 import lombok.*;
 import ru.practicum.shareit.user.User;
@@ -7,24 +7,21 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "booking", schema = "public")
+@Table(name = "comments", schema = "public")
 @Getter @Setter @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "start_date")
-    private LocalDateTime start;
-    @Column(name = "end_date")
-    private LocalDateTime end;
+    private String text;
     @Column(name = "item_id")
-    private Long item;
-    @Column(name = "booker_id")
-    private Long booker;
-    @Enumerated(EnumType.STRING)
-    private BookingStatus status;
+    private Long itemId;
+    @Column(name = "author_id")
+    private Long authorId;
+    private LocalDateTime created;
+
 
     @Override
     public boolean equals(Object o) {

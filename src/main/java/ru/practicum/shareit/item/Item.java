@@ -14,15 +14,13 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
     private String name;
-    @Column
     private String description;
-    @Column
+    @Column(name = "is_available")
     private Boolean available;
-    @Column
+    @Column(name = "owner_id")
     private Long owner;
-    @Column
+    @Column(name = "request_id")
     private Long request;
 
     @Override

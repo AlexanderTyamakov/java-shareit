@@ -30,13 +30,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long id) {
         log.info("Поиск пользователя с id={}", id);
-        Optional<User> found = userRepository.findById(id);
-        if (found.isEmpty()) {
-            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
-        } else {
-            log.info("Пользователь с id=" + id + " получен");
-            return UserDtoMapper.toUserDto(found.get());
-        }
+        User found = handleOptionalUser(userRepository.findById(id), id);
+        log.info("Пользователь с id=" + id + " получен");
+        return UserDtoMapper.toUserDto(found);
+
     }
 
     @Override
@@ -54,14 +51,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(long id, UserDto userDto) {
         log.info("Изменение пользователя с id={}", id);
-        Optional<User> found = userRepository.findById(id);
-        if (found.isEmpty()) {
-            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
-        }
-        if (userRepository.getEmailsExceptUserById(id).contains(userDto.getEmail())) {
+        User found = handleOptionalUser(userRepository.findById(id), id);
+        if (userRepository.getAllEmailsExceptUserById(id).contains(userDto.getEmail())) {
             throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
         }
-        User toUpdate = UserDtoMapper.patchToUser(userDto, found.get(), id);
+        User toUpdate = UserDtoMapper.patchToUser(userDto, found, id);
         userRepository.updateUserById(toUpdate.getName(), toUpdate.getEmail(), id);
         log.info("Пользователь с id=" + id + " обновлен");
         return UserDtoMapper.toUserDto(toUpdate);
@@ -70,12 +64,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto deleteUser(long id) {
         log.info("Удаление пользователя с id={}", id);
-        Optional<User> found = userRepository.findById(id);
-        if (found.isEmpty()) {
-            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
-        }
+        User found = handleOptionalUser(userRepository.findById(id), id);
         userRepository.deleteById(id);
         log.info("Пользователь с id=" + id + " удален");
-        return UserDtoMapper.toUserDto(found.get());
+        return UserDtoMapper.toUserDto(found);
+    }
+
+    private User handleOptionalUser(Optional<User> user, long id) {
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
+        }
+        return user.orElseThrow();
     }
 }
