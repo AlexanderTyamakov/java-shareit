@@ -3,32 +3,32 @@ package ru.practicum.shareit.item;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "comments", schema = "public")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String description;
-    @Column(name = "is_available")
-    private Boolean available;
-    @Column(name = "owner_id")
-    private Long owner;
-    @Column(name = "request_id")
-    private Long request;
+    private String text;
+    @Column(name = "item_id")
+    private Long itemId;
+    @Column(name = "author_id")
+    private Long authorId;
+    private LocalDateTime created;
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Item)) return false;
-        return id != null && id.equals(((Item) o).getId());
+        if (!(o instanceof Comment)) return false;
+        return id != null && id.equals(((Comment) o).getId());
     }
 
     @Override

@@ -6,10 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ErrorResponse;
-import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
 
@@ -48,7 +47,7 @@ public class UserController {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handle(final ValidationException e) {
         return new ErrorResponse(
                 "Ошибка в отправленных данных", e.getMessage()
@@ -57,7 +56,7 @@ public class UserController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handle(final UserNotFoundException e) {
+    public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
                 "Пользователь не найден", e.getMessage()
         );

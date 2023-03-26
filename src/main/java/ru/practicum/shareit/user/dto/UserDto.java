@@ -16,9 +16,9 @@ import javax.validation.constraints.NotEmpty;
 @ToString
 public class UserDto {
     private final Long id;
-    @NotEmpty(groups = {Create.class},message = "Название не может быть пустым.")
+    @NotEmpty(groups = {Create.class}, message = "Название не может быть пустым.")
     private final String name;
-    @NotEmpty(groups = {Create.class},message = "Адрес электронной почты не может быть пустым.")
+    @NotEmpty(groups = {Create.class}, message = "Адрес электронной почты не может быть пустым.")
     @Email(groups = {Update.class, Create.class}, message = "Строка должна быть правильно сформированным адресом электронной почты.")
     private final String email;
 }
