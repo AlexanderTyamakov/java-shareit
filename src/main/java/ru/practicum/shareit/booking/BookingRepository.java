@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long>, BookingRepositoryCustom {
 
-    List<Booking> findAllByBookerIsOrderByStartDesc(User user);
+    List<Booking> findAllByBookerAndStatusIsNotOrderByStartDesc(User user, BookingStatus bookingStatus);
 
     List<Booking> findAllByBookerIsAndStatusIsOrderByStartDesc(User user, BookingStatus bookingStatus);
 
     List<Booking> findAllByItemInAndStatusIsOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
 
-    List<Booking> findAllByItemInOrderByStartDesc(List<Item> items);
+    List<Booking> findAllByItemInAndStatusIsNotOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
 
     List<Booking> findAllByItemIsAndStatusNot(Item item, BookingStatus bookingStatus);
 

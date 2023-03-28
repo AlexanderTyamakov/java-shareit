@@ -50,7 +50,7 @@ public class ItemDtoMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
                 owner,
-                null
+                itemDto.getRequest()
         );
     }
 
@@ -62,7 +62,7 @@ public class ItemDtoMapper {
                 (itemDto.getDescription() != null && !itemDto.getDescription().isEmpty()) ? itemDto.getDescription() : item.getDescription(),
                 itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable(),
                 null,
-                null
+                itemDto.getRequest() != null ? itemDto.getRequest() : item.getRequest()
         );
     }
 

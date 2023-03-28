@@ -64,16 +64,16 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.WAITING);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(user);
+                bookings = bookingRepository.findAllByBookerAndCurrentOrderByStartAsc(user, BookingStatus.REJECTED);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(user);
+                bookings = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(user, BookingStatus.REJECTED);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user);
+                bookings = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user, BookingStatus.REJECTED) ;
                 break;
             case ALL:
-                bookings = bookingRepository.findAllByBookerIsOrderByStartDesc(user);
+                bookings = bookingRepository.findAllByBookerAndStatusIsNotOrderByStartDesc(user, BookingStatus.REJECTED);
                 break;
         }
         if (bookings.size() == 0) {
@@ -112,16 +112,16 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(OwnerItems, BookingStatus.WAITING);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(OwnerItems);
+                bookings = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(OwnerItems);
+                bookings = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItemAndPastOrderByStartDesc(OwnerItems);
+                bookings = bookingRepository.findAllByItemAndPastOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
                 break;
             case ALL:
-                bookings = bookingRepository.findAllByItemInOrderByStartDesc(OwnerItems);
+                bookings = bookingRepository.findAllByItemInAndStatusIsNotOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
                 break;
         }
         if (bookings.size() == 0) {

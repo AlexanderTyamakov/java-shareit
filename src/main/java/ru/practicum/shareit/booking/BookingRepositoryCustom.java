@@ -13,29 +13,29 @@ public interface BookingRepositoryCustom {
     @Query(value = "update Booking b set b.status = ?1 where b.id = ?2")
     void changeStatusById(BookingStatus approved, long bookingId);
 
-    @Query(value = "select b from Booking b where b.booker = ?1 and " +
-            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByBookerAndCurrentOrderByStartDesc(User user);
+    @Query(value = "select b from Booking b where b.booker = ?1 and b.status not in (?2) and" +
+            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start asc")
+    List<Booking> findAllByBookerAndCurrentOrderByStartAsc(User user, BookingStatus bookingStatus);
 
-    @Query(value = "select b from Booking b where b.booker = ?1 and " +
+    @Query(value = "select b from Booking b where b.booker = ?1 and b.status not in (?2) and" +
             " b.start > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByBookerAndFutureOrderByStartDesc(User user);
+    List<Booking> findAllByBookerAndFutureOrderByStartDesc(User user, BookingStatus bookingStatus);
 
-    @Query(value = "select b from Booking b where b.booker = ?1 and " +
+    @Query(value = "select b from Booking b where b.booker = ?1 and b.status not in (?2) and" +
             " b.end < CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByBookerAndPastOrderByStartDesc(User user);
+    List<Booking> findAllByBookerAndPastOrderByStartDesc(User user, BookingStatus bookingStatus);
 
-    @Query(value = "select b from Booking b where b.item in (?1) and " +
+    @Query(value = "select b from Booking b where b.item in (?1) and b.status not in (?2) and" +
             " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByItemsAndCurrentOrderByStartDesc(List<Item> items);
+    List<Booking> findAllByItemsAndCurrentOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
 
-    @Query(value = "select b from Booking b where b.item in (?1) and " +
+    @Query(value = "select b from Booking b where b.item in (?1) and b.status not in (?2) and" +
             " b.start > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByItemsAndFutureOrderByStartDesc(List<Item> items);
+    List<Booking> findAllByItemsAndFutureOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
 
-    @Query(value = "select b from Booking b where b.item in (?1) and " +
+    @Query(value = "select b from Booking b where b.item in (?1) and b.status not in (?2) and" +
             " b.end < CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByItemAndPastOrderByStartDesc(List<Item> items);
+    List<Booking> findAllByItemAndPastOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
 
     @Query(value = "select b from Booking b where b.item = ?1 and " +
             " b.booker = ?2 and b.status not in (?3) and b.end < CURRENT_TIMESTAMP ")
