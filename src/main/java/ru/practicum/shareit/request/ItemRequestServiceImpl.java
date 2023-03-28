@@ -7,14 +7,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.exception.BookingNotFoundException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.ItemDtoMapper;
+import ru.practicum.shareit.item.dto.ItemDtoRequest;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.dto.ItemRequestDtoMapper;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
@@ -44,7 +42,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public ItemRequestDtoOut getItemRequestById(long userId, long itemRequestId) {
         handleOptionalUser(userRepository.findById(userId), userId);
         ItemRequest itemRequest = handleOptionalItemRequest(itemRequestRepository.findById(itemRequestId), itemRequestId);
-        List<Item> items = itemRepository.findAllByRequestIs(itemRequest.getId());
+        List<ItemDtoRequest> items = itemRepository.findAllByRequestIs(itemRequest.getId()).stream()
+                .map(ItemDtoMapper::itemDtoRequest).collect(toList());
         return ItemRequestDtoMapper.toItemRequestOut(itemRequest, items);
     }
 
@@ -87,7 +86,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest itemRequest = ItemRequestDtoMapper.toItemRequest(itemRequestDtoIn, user, localDateTime);
         itemRequestRepository.save(itemRequest);
         ItemRequest created = itemRequestRepository.findFirstByOrderByIdDesc();
-        List<Item> items = itemRepository.findAllByRequestIs(created.getId());
+        List<ItemDtoRequest> items = itemRepository.findAllByRequestIs(created.getId()).stream()
+                .map(ItemDtoMapper::itemDtoRequest).collect(toList());
         return ItemRequestDtoMapper.toItemRequestOut(created, items);
     }
 
@@ -96,7 +96,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<Item> items = itemRepository.findAllByRequestIn(requestsId);
         return requests.stream()
                 .map(x -> ItemRequestDtoMapper.toItemRequestOut(x, items.stream()
-                        .filter(y -> Objects.equals(y.getRequest(), x.getId())).collect(Collectors.toList())))
+                        .filter(y -> Objects.equals(y.getRequest(), x.getId()))
+                        .map(ItemDtoMapper::itemDtoRequest)
+                        .collect(Collectors.toList())))
                 .collect(Collectors.toList());
     }
 
@@ -105,20 +107,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
         }
         return user.orElseThrow();
-    }
-
-    private Item handleOptionalItem(Optional<Item> item, long id) {
-        if (item.isEmpty()) {
-            throw new ItemNotFoundException("Вещь с id = " + id + " не найдена");
-        }
-        return item.orElseThrow();
-    }
-
-    private Booking handleOptionalBooking(Optional<Booking> booking, long id) {
-        if (booking.isEmpty()) {
-            throw new BookingNotFoundException("Бронирование с id = " + id + " не найдено");
-        }
-        return booking.orElseThrow();
     }
 
     private ItemRequest handleOptionalItemRequest(Optional<ItemRequest> itemRequest, long id) {

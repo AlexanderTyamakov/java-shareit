@@ -27,13 +27,17 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDtoOut> getBookingsOfUser(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(required = false) String state) {
-        return bookingService.getBookingsOfUser(userId, state);
+    public List<BookingDtoOut> getBookingsOfUser(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(required = false) String state,
+                                                 @RequestParam(defaultValue = "0") Integer from,
+                                                 @RequestParam(required = false) Integer size) {
+        return bookingService.getBookingsOfUser(userId, state, from, size);
     }
 
     @GetMapping("/owner")
-    public List<BookingDtoOut> getBookingsOfOwner(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(required = false) String state) {
-        return bookingService.getBookingsOfOwner(userId, state);
+    public List<BookingDtoOut> getBookingsOfOwner(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(required = false) String state,
+                                                  @RequestParam(defaultValue = "0") Integer from,
+                                                  @RequestParam(required = false) Integer size) {
+        return bookingService.getBookingsOfOwner(userId, state, from, size);
     }
 
     @PostMapping
@@ -58,7 +62,7 @@ public class BookingController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
-                "Вещь не найдена", e.getMessage()
+                "Отсутствует объект", e.getMessage()
         );
     }
 }

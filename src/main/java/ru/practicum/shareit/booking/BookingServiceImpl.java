@@ -2,6 +2,10 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
@@ -13,12 +17,15 @@ import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.utils.Pagination;
 
 import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +49,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getBookingsOfUser(long userId, String query) {
+    public List<BookingDtoOut> getBookingsOfUser(long userId, String query, Integer from, Integer size) {
         BookingState state;
         if (query == null) {
             state = BookingState.ALL;
@@ -55,29 +62,31 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Получение списка бронирования для пользователя id = " + userId + " по state = " + state);
         User user = handleOptionalUser(userRepository.findById(userId), userId);
+        Pageable pageable;
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        Page<Booking> page;
+        Pagination pager = new Pagination(from, size);
         List<Booking> bookings = new ArrayList<>();
-        switch (state) {
-            case REJECTED:
-                bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.REJECTED);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.WAITING);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByBookerAndCurrentOrderByStartAsc(user, BookingStatus.REJECTED);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(user, BookingStatus.REJECTED);
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user, BookingStatus.REJECTED) ;
-                break;
-            case ALL:
-                bookings = bookingRepository.findAllByBookerAndStatusIsNotOrderByStartDesc(user, BookingStatus.REJECTED);
-                break;
-        }
-        if (bookings.size() == 0) {
-            return new ArrayList<>();
+
+        if (size == null) {
+            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
+            do {
+                page = getPageBookings(state, user, pageable);
+                bookings.addAll(page.stream().collect(toList()));
+                pageable = pageable.next();
+            } while (page.hasNext());
+
+        } else {
+            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+                pageable =
+                        PageRequest.of(i, pager.getPageSize(), sort);
+                page = getPageBookings(state, user, pageable);
+                bookings.addAll(page.stream().collect(toList()));
+                if (!page.hasNext()) {
+                    break;
+                }
+            }
+            bookings = bookings.stream().limit(size).collect(toList());
         }
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
@@ -86,7 +95,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getBookingsOfOwner(long userId, String query) {
+    public List<BookingDtoOut> getBookingsOfOwner(long userId, String query, Integer from, Integer size) {
         BookingState state;
         if (query == null) {
             state = BookingState.ALL;
@@ -99,33 +108,35 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Получение списка бронирования для владельца id = " + userId + " по state = " + state);
         handleOptionalUser(userRepository.findById(userId), userId);
-        List<Item> OwnerItems = itemRepository.findAllByOwnerIsOrderById(userId);
-        if (OwnerItems.size() == 0) {
+        List<Item> ownerItems = itemRepository.findAllByOwnerIsOrderById(userId);
+        if (ownerItems.size() == 0) {
             return new ArrayList<>();
         }
+        Pageable pageable;
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        Page<Booking> page;
+        Pagination pager = new Pagination(from, size);
         List<Booking> bookings = new ArrayList<>();
-        switch (state) {
-            case REJECTED:
-                bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(OwnerItems, BookingStatus.WAITING);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByItemAndPastOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
-                break;
-            case ALL:
-                bookings = bookingRepository.findAllByItemInAndStatusIsNotOrderByStartDesc(OwnerItems, BookingStatus.REJECTED);
-                break;
-        }
-        if (bookings.size() == 0) {
-            return new ArrayList<>();
+
+        if (size == null) {
+            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
+            do {
+                page = getPageOwnerBookings(state, ownerItems, pageable);
+                bookings.addAll(page.stream().collect(toList()));
+                pageable = pageable.next();
+            } while (page.hasNext());
+
+        } else {
+            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+                pageable =
+                        PageRequest.of(i, pager.getPageSize(), sort);
+                page = getPageOwnerBookings(state, ownerItems, pageable);
+                bookings.addAll(page.stream().collect(toList()));
+                if (!page.hasNext()) {
+                    break;
+                }
+            }
+            bookings = bookings.stream().limit(size).collect(toList());
         }
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
         return bookings.stream()
@@ -171,6 +182,55 @@ public class BookingServiceImpl implements BookingService {
         return BookingDtoMapper.toBookingDtoOut(newBooking, booking.getItem());
     }
 
+    private Page<Booking> getPageBookings(BookingState state, User user, Pageable pageable) {
+        Page<Booking> page;
+        switch (state) {
+            case REJECTED:
+                page = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.REJECTED, pageable);
+                break;
+            case WAITING:
+                page = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.WAITING, pageable);
+                break;
+            case CURRENT:
+                page = bookingRepository.findAllByBookerAndCurrentOrderByStartAsc(user, pageable);
+                break;
+            case PAST:
+                page = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user, pageable);
+                break;
+            case FUTURE:
+                page = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(user, pageable);
+                break;
+            default:
+                page = bookingRepository.findAllByBookerOrderByStartDesc(user, pageable);
+                break;
+        }
+        return page;
+    }
+
+    private Page<Booking> getPageOwnerBookings(BookingState state, List<Item> items, Pageable pageable) {
+        Page<Booking> page;
+        switch (state) {
+            case REJECTED:
+                page = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(items, BookingStatus.REJECTED, pageable);
+                break;
+            case WAITING:
+                page = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(items, BookingStatus.WAITING, pageable);
+                break;
+            case CURRENT:
+                page = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(items, pageable);
+                break;
+            case PAST:
+                page = bookingRepository.findAllByItemAndPastOrderByStartDesc(items, pageable);
+                break;
+            case FUTURE:
+                page = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(items, pageable);
+                break;
+            default:
+                page = bookingRepository.findAllByItemInOrderByStartDesc(items, pageable);
+                break;
+        }
+        return page;
+    }
 
     private User handleOptionalUser(Optional<User> user, long id) {
         if (user.isEmpty()) {

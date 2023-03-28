@@ -58,7 +58,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
-                "Пользователь не найден", e.getMessage()
+                "Отсутствует объект", e.getMessage()
         );
     }
 }

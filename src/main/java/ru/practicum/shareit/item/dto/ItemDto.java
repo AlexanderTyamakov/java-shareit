@@ -22,7 +22,7 @@ public class ItemDto {
     @NotEmpty(groups = {Create.class}, message = "Описание не может быть пустым.")
     private final String description;
     private final Boolean available;
-    private final Long request;
+    private final Long requestId;
     private final LastBookingDto lastBooking;
     private final NextBookingDto nextBooking;
     private final List<CommentDtoOut> comments;

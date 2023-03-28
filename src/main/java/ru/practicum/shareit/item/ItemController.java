@@ -24,8 +24,9 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllItemsOfUser(userId);
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(defaultValue = "0") Integer from,
+                                     @RequestParam(required = false) Integer size) {
+        return itemService.getAllItemsOfUser(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -44,8 +45,10 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
-        return itemService.searchItem(userId, text);
+    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text,
+                                    @RequestParam(defaultValue = "0") Integer from,
+                                    @RequestParam(required = false) Integer size) {
+        return itemService.searchItem(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
@@ -65,7 +68,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
-                "Вещь не найдена", e.getMessage()
+                "Отсутствует объект", e.getMessage()
         );
     }
 }

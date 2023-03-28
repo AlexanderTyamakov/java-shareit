@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
@@ -8,13 +10,13 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long>, BookingRepositoryCustom {
 
-    List<Booking> findAllByBookerAndStatusIsNotOrderByStartDesc(User user, BookingStatus bookingStatus);
+    Page<Booking> findAllByBookerOrderByStartDesc(User user, Pageable pageable);
 
-    List<Booking> findAllByBookerIsAndStatusIsOrderByStartDesc(User user, BookingStatus bookingStatus);
+    Page<Booking> findAllByBookerIsAndStatusIsOrderByStartDesc(User user, BookingStatus bookingStatus, Pageable pageable);
 
-    List<Booking> findAllByItemInAndStatusIsOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
+    Page<Booking> findAllByItemInAndStatusIsOrderByStartDesc(List<Item> items, BookingStatus bookingStatus, Pageable pageable);
 
-    List<Booking> findAllByItemInAndStatusIsNotOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
+    Page<Booking> findAllByItemInOrderByStartDesc(List<Item> items, Pageable pageable);
 
     List<Booking> findAllByItemIsAndStatusNot(Item item, BookingStatus bookingStatus);
 

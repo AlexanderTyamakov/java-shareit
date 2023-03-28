@@ -50,7 +50,17 @@ public class ItemDtoMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
                 owner,
-                itemDto.getRequest()
+                itemDto.getRequestId()
+        );
+    }
+
+    public static ItemDtoRequest itemDtoRequest(Item item) {
+        return new ItemDtoRequest(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                item.getRequest()
         );
     }
 
@@ -62,7 +72,7 @@ public class ItemDtoMapper {
                 (itemDto.getDescription() != null && !itemDto.getDescription().isEmpty()) ? itemDto.getDescription() : item.getDescription(),
                 itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable(),
                 null,
-                itemDto.getRequest() != null ? itemDto.getRequest() : item.getRequest()
+                itemDto.getRequestId() != null ? itemDto.getRequestId() : item.getRequest()
         );
     }
 

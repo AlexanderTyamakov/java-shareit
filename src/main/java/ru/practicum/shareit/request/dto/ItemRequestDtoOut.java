@@ -1,7 +1,10 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.*;
-import ru.practicum.shareit.item.Item;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import ru.practicum.shareit.item.dto.ItemDtoRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotBlank;
@@ -18,5 +21,5 @@ public class ItemRequestDtoOut {
     private String description;
     private UserDto requestor;
     private LocalDateTime created;
-    private List<Item> items;
+    private List<ItemDtoRequest> items;
 }

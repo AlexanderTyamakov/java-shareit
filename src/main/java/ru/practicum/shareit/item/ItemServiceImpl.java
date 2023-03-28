@@ -2,6 +2,10 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -17,11 +21,14 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.utils.Pagination;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +40,31 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public List<ItemDto> getAllItemsOfUser(long userId) {
+    public List<ItemDto> getAllItemsOfUser(long userId, Integer from, Integer size) {
         handleOptionalUser(userRepository.findById(userId), userId);
-        log.info("Возвращен список вещей пользователя с id = {}", userId);
-        List<Item> items = itemRepository.findAllByOwnerIsOrderById(userId);
-        if (items.size() == 0) {
-            return new ArrayList<>();
+        List<Item> items = new ArrayList<>();
+        Pageable pageable;
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Page<Item> page;
+        Pagination pager = new Pagination(from, size);
+        if (size == null) {
+            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
+            do {
+                page = itemRepository.findAllByOwnerIs(userId, pageable);
+                items.addAll(page.stream().collect(toList()));
+                pageable = pageable.next();
+            } while (page.hasNext());
+
+        } else {
+            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+                pageable = PageRequest.of(i, pager.getPageSize(), sort);
+                page = itemRepository.findAllByOwnerIs(userId, pageable);
+                items.addAll(page.stream().collect(toList()));
+                if (!page.hasNext()) {
+                    break;
+                }
+            }
+            items = items.stream().limit(size).collect(toList());
         }
         List<ItemDto> itemDtoList = new ArrayList<>();
         List<Booking> bookings = bookingRepository.findAllByItemInAndStatusIsNot(items, BookingStatus.REJECTED);
@@ -65,6 +91,7 @@ public class ItemServiceImpl implements ItemService {
         for (Item item : items) {
             itemDtoList.add(ItemDtoMapper.toItemDto(item, lastBookingDtoMap.get(item), nextBookingDtoMap.get(item), commentDtoOutMap.get(item)));
         }
+        log.info("Возвращен список вещей пользователя с id = {}", userId);
         return itemDtoList;
     }
 
@@ -112,13 +139,36 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(long userId, String text) {
+    public List<ItemDto> searchItem(long userId, String text, Integer from, Integer size) {
         log.info("Поиск вещи по запросу {}", text);
         handleOptionalUser(userRepository.findById(userId), userId);
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        List<Item> foundList = itemRepository.searchByNameAndDescription(text.toLowerCase());
+        List<Item> foundList = new ArrayList<>();
+        Pageable pageable;
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Page<Item> page;
+        Pagination pager = new Pagination(from, size);
+        if (size == null) {
+            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
+            do {
+                page = itemRepository.searchByNameAndDescription(text.toLowerCase(), pageable);
+                foundList.addAll(page.stream().collect(toList()));
+                pageable = pageable.next();
+            } while (page.hasNext());
+
+        } else {
+            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+                pageable = PageRequest.of(i, pager.getPageSize(), sort);
+                page = itemRepository.searchByNameAndDescription(text.toLowerCase(), pageable);
+                foundList.addAll(page.stream().collect(toList()));
+                if (!page.hasNext()) {
+                    break;
+                }
+            }
+            foundList = foundList.stream().limit(size).collect(toList());
+        }
         log.info("Найдены вещи по запросу query = " + text + ": " + foundList);
         return foundList.stream()
                 .map(x -> mapWithBookingsAndComments(x, false))

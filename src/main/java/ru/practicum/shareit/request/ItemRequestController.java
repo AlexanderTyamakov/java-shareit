@@ -2,11 +2,15 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.ErrorResponse;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,5 +43,19 @@ public class ItemRequestController {
         return itemRequestService.saveRequest(userId, itemRequestDtoIn, LocalDateTime.now());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final ValidationException e) {
+        return new ErrorResponse(
+                "Ошибка в отправленных данных", e.getMessage()
+        );
+    }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(final NotFoundException e) {
+        return new ErrorResponse(
+                "Отсутствует объект", e.getMessage()
+        );
+    }
 }

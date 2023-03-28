@@ -10,9 +10,9 @@ public interface BookingService {
 
     BookingDtoOut getBookingById(long userId, long bookingId);
 
-    List<BookingDtoOut> getBookingsOfUser(long userId, String state);
+    List<BookingDtoOut> getBookingsOfUser(long userId, String state, Integer from, Integer size);
 
-    List<BookingDtoOut> getBookingsOfOwner(long userId, String state);
+    List<BookingDtoOut> getBookingsOfOwner(long userId, String state, Integer from, Integer size);
 
     @Transactional
     BookingDtoOut saveBooking(long userId, BookingDtoIn bookingDtoIn);

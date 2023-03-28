@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.Item;
@@ -13,29 +15,29 @@ public interface BookingRepositoryCustom {
     @Query(value = "update Booking b set b.status = ?1 where b.id = ?2")
     void changeStatusById(BookingStatus approved, long bookingId);
 
-    @Query(value = "select b from Booking b where b.booker = ?1 and b.status not in (?2) and" +
+    @Query(value = "select b from Booking b where b.booker = ?1 and" +
             " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start asc")
-    List<Booking> findAllByBookerAndCurrentOrderByStartAsc(User user, BookingStatus bookingStatus);
+    Page<Booking> findAllByBookerAndCurrentOrderByStartAsc(User user, Pageable pageable);
 
-    @Query(value = "select b from Booking b where b.booker = ?1 and b.status not in (?2) and" +
+    @Query(value = "select b from Booking b where b.booker = ?1 and" +
             " b.start > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByBookerAndFutureOrderByStartDesc(User user, BookingStatus bookingStatus);
+    Page<Booking> findAllByBookerAndFutureOrderByStartDesc(User user, Pageable pageable);
 
-    @Query(value = "select b from Booking b where b.booker = ?1 and b.status not in (?2) and" +
+    @Query(value = "select b from Booking b where b.booker = ?1 and" +
             " b.end < CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByBookerAndPastOrderByStartDesc(User user, BookingStatus bookingStatus);
+    Page<Booking> findAllByBookerAndPastOrderByStartDesc(User user, Pageable pageable);
 
-    @Query(value = "select b from Booking b where b.item in (?1) and b.status not in (?2) and" +
-            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByItemsAndCurrentOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
+    @Query(value = "select b from Booking b where b.item in (?1) and" +
+            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start asc ")
+    Page<Booking> findAllByItemsAndCurrentOrderByStartDesc(List<Item> items, Pageable pageable);
 
-    @Query(value = "select b from Booking b where b.item in (?1) and b.status not in (?2) and" +
+    @Query(value = "select b from Booking b where b.item in (?1) and" +
             " b.start > CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByItemsAndFutureOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
+    Page<Booking> findAllByItemsAndFutureOrderByStartDesc(List<Item> items, Pageable pageable);
 
-    @Query(value = "select b from Booking b where b.item in (?1) and b.status not in (?2) and" +
+    @Query(value = "select b from Booking b where b.item in (?1) and" +
             " b.end < CURRENT_TIMESTAMP order by b.start desc ")
-    List<Booking> findAllByItemAndPastOrderByStartDesc(List<Item> items, BookingStatus bookingStatus);
+    Page<Booking> findAllByItemAndPastOrderByStartDesc(List<Item> items, Pageable pageable);
 
     @Query(value = "select b from Booking b where b.item = ?1 and " +
             " b.booker = ?2 and b.status not in (?3) and b.end < CURRENT_TIMESTAMP ")
