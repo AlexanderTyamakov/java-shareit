@@ -8,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class ItemRequestDtoIn {
     @NotBlank(message = "Описание не может быть пустым.")
     private String description;

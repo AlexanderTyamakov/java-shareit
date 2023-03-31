@@ -8,7 +8,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@ToString
 public class ItemDtoRequest {
     private final Long id;
     private final String name;

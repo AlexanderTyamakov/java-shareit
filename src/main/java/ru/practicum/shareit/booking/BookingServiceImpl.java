@@ -125,8 +125,7 @@ public class BookingServiceImpl implements BookingService {
 
         } else {
             for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-                pageable =
-                        PageRequest.of(i, pager.getPageSize(), sort);
+                pageable = PageRequest.of(i, pager.getPageSize(), sort);
                 page = getPageOwnerBookings(state, ownerItems, pageable);
                 bookings.addAll(page.stream().collect(toList()));
                 if (!page.hasNext()) {

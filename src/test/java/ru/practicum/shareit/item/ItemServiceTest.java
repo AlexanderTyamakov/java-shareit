@@ -99,6 +99,15 @@ public class ItemServiceTest {
     }
 
     @Test
+    void searchItemWithBlankText() {
+        UserDto ownerDto = userService.saveUser(userDto1);
+        itemService.saveItem(ownerDto.getId(), itemDto);
+        itemService.saveItem(ownerDto.getId(), itemDto2);
+        List<ItemDto> itemList = itemService.searchItem(ownerDto.getId(), "", 0, 5);
+        assertTrue(itemList.isEmpty());
+    }
+
+    @Test
     void shouldGetExceptionWhenAddCommentWhenUserNotBooker() {
         UserDto ownerDto = userService.saveUser(userDto1);
         UserDto newUserDto = userService.saveUser(userDto2);

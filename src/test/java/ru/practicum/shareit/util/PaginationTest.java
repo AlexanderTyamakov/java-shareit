@@ -31,12 +31,19 @@ public class PaginationTest {
     }
 
     @Test
-    public void whenSizeAndFromValidThenResultCorrectly() {
-        Integer from = 5;
-        Integer size = 5;
+    public void whenSizeLessOneAndFromPositiveValidateException() {
+        Integer from = 1;
+        Integer size = 0;
+        assertThrows(ValidationException.class, () -> new Pagination(from, size));
+    }
+
+    @Test
+    public void whenSizeLessFromThenResultCorrectly() {
+        Integer from = 10;
+        Integer size = 2;
         Pagination pager = new Pagination(from, size);
         assertThat(pager.getIndex()).isEqualTo(1);
-        assertThat(pager.getPageSize()).isEqualTo(5);
+        assertThat(pager.getPageSize()).isEqualTo(10);
         assertThat(pager.getTotalPages()).isEqualTo(2);
     }
 
@@ -51,12 +58,12 @@ public class PaginationTest {
     }
 
     @Test
-    public void whenSizeLessFromThenResultCorrectly() {
-        Integer from = 10;
-        Integer size = 2;
+    public void whenSizeEqualsFromThenResultCorrectly() {
+        Integer from = 5;
+        Integer size = 5;
         Pagination pager = new Pagination(from, size);
         assertThat(pager.getIndex()).isEqualTo(1);
-        assertThat(pager.getPageSize()).isEqualTo(10);
+        assertThat(pager.getPageSize()).isEqualTo(5);
         assertThat(pager.getTotalPages()).isEqualTo(2);
     }
 
@@ -77,6 +84,16 @@ public class PaginationTest {
         Pagination pager = new Pagination(from, size);
         assertThat(pager.getIndex()).isEqualTo(0);
         assertThat(pager.getPageSize()).isEqualTo(1000);
+        assertThat(pager.getTotalPages()).isEqualTo(0);
+    }
+
+    @Test
+    public void whenFroPositiveAndSizeNullThenResultCorrectly() {
+        Integer from = 1;
+        Integer size = null;
+        Pagination pager = new Pagination(from, size);
+        assertThat(pager.getIndex()).isEqualTo(1);
+        assertThat(pager.getPageSize()).isEqualTo(1);
         assertThat(pager.getTotalPages()).isEqualTo(0);
     }
 }

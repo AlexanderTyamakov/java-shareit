@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "item_request", schema = "public")
 @Getter
-@Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequest {
