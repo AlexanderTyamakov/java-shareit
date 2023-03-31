@@ -30,7 +30,6 @@ public class ItemRequestServiceTest {
     private final UserService userService;
     private UserDto userDto1 = new UserDto(101L, "Ivan", "ivan@ivan.ru");
     private UserDto userDto2 = new UserDto(102L, "Egor", "egor@egor.ru");
-
     private UserDto userDto3 = new UserDto(103L, "Max", "max@max.ru");
 
     private ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn("ItemRequest description");
@@ -100,11 +99,22 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void shouldReturnItemRequestById() {
+    void shouldReturnItemRequestByIdForOwner() {
         UserDto firstUserDto = userService.saveUser(userDto3);
         ItemRequestDtoOut newItemRequestDto = itemRequestService.saveRequest(firstUserDto.getId(), itemRequestDtoIn,
                 LocalDateTime.of(2023, 1, 2, 3, 4, 5));
         ItemRequestDtoOut returnItemRequestDto = itemRequestService.getItemRequestById(firstUserDto.getId(),
+                newItemRequestDto.getId());
+        assertThat(returnItemRequestDto.getDescription(), equalTo(itemRequestDto.getDescription()));
+    }
+
+    @Test
+    void shouldReturnItemRequestByIdForUser() {
+        UserDto firstUserDto = userService.saveUser(userDto3);
+        UserDto newUserDto = userService.saveUser(userDto2);
+        ItemRequestDtoOut newItemRequestDto = itemRequestService.saveRequest(firstUserDto.getId(), itemRequestDtoIn,
+                LocalDateTime.of(2023, 1, 2, 3, 4, 5));
+        ItemRequestDtoOut returnItemRequestDto = itemRequestService.getItemRequestById(newUserDto.getId(),
                 newItemRequestDto.getId());
         assertThat(returnItemRequestDto.getDescription(), equalTo(itemRequestDto.getDescription()));
     }

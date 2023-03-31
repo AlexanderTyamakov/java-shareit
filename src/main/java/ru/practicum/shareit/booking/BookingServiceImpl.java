@@ -170,7 +170,7 @@ public class BookingServiceImpl implements BookingService {
         }
         BookingStatus bookingStatus = approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
         if (bookingStatus == BookingStatus.APPROVED && booking.getStatus() == BookingStatus.APPROVED) {
-            throw new ValidationException("Бронирование id = " + booking + " уже было подтвреждено");
+            throw new ValidationException("Бронирование id = " + bookingId + " уже было подтвреждено");
         }
         bookingRepository.changeStatusById(bookingStatus, bookingId);
         log.info("Обновлен статус бронирования с id = " + bookingId);

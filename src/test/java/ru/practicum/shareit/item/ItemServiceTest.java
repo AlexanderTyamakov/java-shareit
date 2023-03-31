@@ -38,12 +38,30 @@ public class ItemServiceTest {
     private ItemDto itemDto2 = new ItemDto(102L, "Item2", "Description2", true,
             null, null, null, null);
 
+    private ItemDto itemDto3 = new ItemDto(103L, "Item3", "Description3", null,
+            null, null, null, null);
+
     @Test
     void shouldSaveItem() {
         UserDto newUserDto = userService.saveUser(userDto1);
         ItemDto newItemDto = itemService.saveItem(newUserDto.getId(), itemDto);
         ItemDto returnItemDto = itemService.getItemById(newUserDto.getId(), newItemDto.getId());
         assertThat(returnItemDto.getDescription(), equalTo(itemDto.getDescription()));
+    }
+
+    @Test
+    void shouldGetExceptionWhenSaveItemWithoutAvailable() {
+        UserDto newUserDto = userService.saveUser(userDto1);
+        ValidationException exp = assertThrows(ValidationException.class,
+                () -> itemService.saveItem(newUserDto.getId(), itemDto3));
+        assertEquals("Не заполнено поле available", exp.getMessage());
+    }
+
+    @Test
+    void shouldGetExceptionWhenSaveItemWithInvalidUser() {
+        UserNotFoundException exp = assertThrows(UserNotFoundException.class,
+                () -> itemService.saveItem(0L, itemDto));
+        assertEquals("Пользователь с id = 0 не найден", exp.getMessage());
     }
 
     @Test
@@ -77,6 +95,32 @@ public class ItemServiceTest {
         itemService.saveItem(ownerDto.getId(), itemDto2);
         List<ItemDto> listItems = itemService.getAllItemsOfUser(ownerDto.getId(), 0, 10);
         assertEquals(2, listItems.size());
+    }
+
+    @Test
+    void shouldReturnItemsByOwnerSizeNull() {
+        UserDto ownerDto = userService.saveUser(userDto1);
+        itemService.saveItem(ownerDto.getId(), itemDto);
+        itemService.saveItem(ownerDto.getId(), itemDto2);
+        List<ItemDto> listItems = itemService.getAllItemsOfUser(ownerDto.getId(), 0, null);
+        assertEquals(2, listItems.size());
+    }
+
+    @Test
+    void shouldReturnItemsByIdOwner() {
+        UserDto ownerDto = userService.saveUser(userDto1);
+        ItemDto item = itemService.saveItem(ownerDto.getId(), itemDto);
+        ItemDto returned = itemService.getItemById(ownerDto.getId(),item.getId());
+        assertEquals(item.getId(), returned.getId());
+    }
+
+    @Test
+    void shouldReturnItemsByIdUser() {
+        UserDto ownerDto = userService.saveUser(userDto1);
+        UserDto userDto = userService.saveUser(userDto2);
+        ItemDto item = itemService.saveItem(ownerDto.getId(), itemDto);
+        ItemDto returned = itemService.getItemById(userDto.getId(),item.getId());
+        assertEquals(item.getId(), returned.getId());
     }
 
     @Test
