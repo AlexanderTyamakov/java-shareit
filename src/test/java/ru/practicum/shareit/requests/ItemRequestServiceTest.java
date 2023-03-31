@@ -96,7 +96,6 @@ public class ItemRequestServiceTest {
         itemRequestService.saveRequest(newUserDto.getId(), itemRequestDtoIn,
                 LocalDateTime.of(2024, 1, 2, 3, 4, 5));
         List<ItemRequestDtoOut> listItemRequest = itemRequestService.getItemRequestsOfUser(newUserDto.getId());
-        System.out.println(listItemRequest.toString());
         assertThat(listItemRequest.size(), equalTo(2));
     }
 
@@ -106,7 +105,7 @@ public class ItemRequestServiceTest {
         ItemRequestDtoOut newItemRequestDto = itemRequestService.saveRequest(firstUserDto.getId(), itemRequestDtoIn,
                 LocalDateTime.of(2023, 1, 2, 3, 4, 5));
         ItemRequestDtoOut returnItemRequestDto = itemRequestService.getItemRequestById(newItemRequestDto.getId(),
-                firstUserDto.getId());
+                1L);
         assertThat(returnItemRequestDto.getDescription(), equalTo(itemRequestDto.getDescription()));
     }
 }
