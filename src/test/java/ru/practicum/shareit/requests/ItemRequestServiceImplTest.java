@@ -59,7 +59,7 @@ public class ItemRequestServiceImplTest {
                 .thenReturn(Optional.of(UserDtoMapper.toNewUser(userDto)));
         when(mockItemRequestRepository.findById(any(Long.class)))
                 .thenReturn(Optional.of(ItemRequestDtoMapper.toItemRequest(itemRequestDtoIn, UserDtoMapper.toNewUser(userDto), LocalDateTime.of(2022, 1, 2, 3, 4, 5))));
-        ItemRequestDtoOut itemRequestDtoOutReturned = itemRequestService.getItemRequestById(1l, itemRequestDto.getId());
+        ItemRequestDtoOut itemRequestDtoOutReturned = itemRequestService.getItemRequestById(1L, itemRequestDto.getId());
         verify(mockUserRepository, Mockito.times(1))
                 .findById(1L);
         assertThat(itemRequestDtoOutReturned.getDescription(), equalTo(itemRequestDtoIn.getDescription()));

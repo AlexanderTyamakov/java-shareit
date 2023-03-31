@@ -41,7 +41,7 @@ public class BookingServiceTest {
                 LocalDateTime.of(2025, 12, 26, 12, 00, 00),
                 newItemDto.getId());
         ItemNotFoundException exp = assertThrows(ItemNotFoundException.class,
-                () -> bookingService.saveBooking(ownerDto.getId(),bookingDtoIn ));
+                () -> bookingService.saveBooking(ownerDto.getId(),bookingDtoIn));
         assertEquals("Запрошено бронирование вещи id = " + newItemDto.getId() + " владельцем", exp.getMessage());
     }
 
