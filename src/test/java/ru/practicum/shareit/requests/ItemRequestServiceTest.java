@@ -31,6 +31,8 @@ public class ItemRequestServiceTest {
     private UserDto userDto1 = new UserDto(101L, "Ivan", "ivan@ivan.ru");
     private UserDto userDto2 = new UserDto(102L, "Egor", "egor@egor.ru");
 
+    private UserDto userDto3 = new UserDto(103L, "Max", "max@max.ru");
+
     private ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn("ItemRequest description");
     private ItemRequestDtoOut itemRequestDto = new ItemRequestDtoOut(100L, "ItemRequest description",
             userDto1, LocalDateTime.of(2022, 1, 2, 3, 4, 5), null);
@@ -100,7 +102,7 @@ public class ItemRequestServiceTest {
 
     @Test
     void shouldReturnItemRequestById() {
-        UserDto firstUserDto = userService.saveUser(userDto1);
+        UserDto firstUserDto = userService.saveUser(userDto3);
         ItemRequestDtoOut newItemRequestDto = itemRequestService.saveRequest(firstUserDto.getId(), itemRequestDtoIn,
                 LocalDateTime.of(2023, 1, 2, 3, 4, 5));
         ItemRequestDtoOut returnItemRequestDto = itemRequestService.getItemRequestById(newItemRequestDto.getId(),
