@@ -58,7 +58,7 @@ public class BookingDtoInTest {
         bookingDtoIn.setStart(null);
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно равняться null'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
     }
 
     @Test
@@ -66,7 +66,7 @@ public class BookingDtoInTest {
         bookingDtoIn.setEnd(null);
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно равняться null'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
     }
 
     @Test
@@ -91,6 +91,6 @@ public class BookingDtoInTest {
         bookingDtoIn.setItemId(null);
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно равняться null'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
     }
 }
