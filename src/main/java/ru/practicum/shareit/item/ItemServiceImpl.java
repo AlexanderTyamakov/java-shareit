@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -23,7 +24,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.utils.Pagination;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,12 +127,12 @@ public class ItemServiceImpl implements ItemService {
         log.info("Изменения вещи с id={}", userId);
         Item found = handleOptionalItem(itemRepository.findById(itemId), itemId);
         if (found.getOwner() != userId) {
-            throw new UserNotFoundException("Пользователь с id=" + userId + " не является владельцем вещи с id=" + itemId);
+            throw new UserNotFoundException("Пользователь с id = " + userId + " не является владельцем вещи с id = " + itemId);
         } else {
             handleOptionalUser(userRepository.findById(userId), userId);
             Item item = ItemDtoMapper.patchToItem(itemDto, found, itemId);
             itemRepository.updateItemById(item.getName(), item.getDescription(), item.getAvailable(), itemId);
-            log.info("Обновлена вещь " + item + " пользователя с id=" + userId);
+            log.info("Обновлена вещь " + item + " пользователя с id = " + userId);
             Item updated = handleOptionalItem(itemRepository.findById(itemId), itemId);
             return mapWithBookingsAndComments(updated, false);
         }
@@ -182,7 +182,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = handleOptionalItem(itemRepository.findById(itemId), itemId);
         List<Booking> bookings = bookingRepository.findByItemAndBookerAndStatus(item, user, BookingStatus.REJECTED);
         if (bookings.size() == 0) {
-            throw new ValidationException("Бронирование пользователем id = " + userId + " вещи id = " + " не найдено");
+            throw new ValidationException("Бронирование пользователем id = " + userId + " вещи id = " + itemId + " не найдено");
         }
         Comment comment = ItemDtoMapper.toComment(commentDtoIn, item, user, LocalDateTime.now());
         commentRepository.save(comment);

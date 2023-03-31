@@ -16,8 +16,8 @@ public interface BookingRepositoryCustom {
     void changeStatusById(BookingStatus approved, long bookingId);
 
     @Query(value = "select b from Booking b where b.booker = ?1 and" +
-            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start asc")
-    Page<Booking> findAllByBookerAndCurrentOrderByStartAsc(User user, Pageable pageable);
+            " b.start < CURRENT_TIMESTAMP and b.end > CURRENT_TIMESTAMP order by b.start desc")
+    Page<Booking> findAllByBookerAndCurrentOrderByStartDesc(User user, Pageable pageable);
 
     @Query(value = "select b from Booking b where b.booker = ?1 and" +
             " b.start > CURRENT_TIMESTAMP order by b.start desc ")

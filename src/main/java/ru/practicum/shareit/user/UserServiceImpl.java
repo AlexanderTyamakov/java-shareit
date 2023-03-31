@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         try {
             saved = userRepository.save(UserDtoMapper.toNewUser(userDto));
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException("Пользователь с email=" + userDto.getEmail() + " уже есть в коллекции");
+            throw new ValidationException("Пользователь с email = " + userDto.getEmail() + " уже есть в коллекции");
         }
         log.info("Сохранен пользователь с id = " + saved.getId());
         return UserDtoMapper.toUserDto(saved);
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         }
         User toUpdate = UserDtoMapper.patchToUser(userDto, found, id);
         userRepository.updateUserById(toUpdate.getName(), toUpdate.getEmail(), id);
-        log.info("Обновлен пользователь с id =" + id);
+        log.info("Обновлен пользователь с id = " + id);
         return UserDtoMapper.toUserDto(toUpdate);
     }
 
@@ -64,13 +64,13 @@ public class UserServiceImpl implements UserService {
         log.info("Удаление пользователя с id={}", id);
         User found = handleOptionalUser(userRepository.findById(id), id);
         userRepository.deleteById(id);
-        log.info("Пользователь с id=" + id + " удален");
+        log.info("Пользователь с id = " + id + " удален");
         return UserDtoMapper.toUserDto(found);
     }
 
     private User handleOptionalUser(Optional<User> user, long id) {
         if (user.isEmpty()) {
-            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
         }
         return user.orElseThrow();
     }

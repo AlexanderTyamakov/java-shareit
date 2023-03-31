@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 @Getter
@@ -10,6 +11,6 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @ToString
 public class CommentDtoIn {
-    @NotEmpty(message = "Комментарий не может быть пустым.")
+    @NotBlank(message = "Комментарий не может быть пустым.")
     private String text;
 }

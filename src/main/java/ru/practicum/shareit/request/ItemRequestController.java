@@ -10,7 +10,6 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,21 +33,13 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDtoOut> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(defaultValue = "0") Integer from,
-                                                     @RequestParam(required = false) Integer size) {
+                                                      @RequestParam(required = false) Integer size) {
         return itemRequestService.getAllItemRequests(userId, from, size);
     }
 
     @PostMapping
     public ItemRequestDtoOut saveRequest(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated ItemRequestDtoIn itemRequestDtoIn) {
         return itemRequestService.saveRequest(userId, itemRequestDtoIn, LocalDateTime.now());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(final ValidationException e) {
-        return new ErrorResponse(
-                "Ошибка в отправленных данных", e.getMessage()
-        );
     }
 
     @ExceptionHandler

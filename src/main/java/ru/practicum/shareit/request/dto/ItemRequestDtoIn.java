@@ -14,6 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class ItemRequestDtoIn {
-    @NotEmpty(message = "Описание не может быть пустым.")
+    @NotBlank(message = "Описание не может быть пустым.")
     private String description;
 }

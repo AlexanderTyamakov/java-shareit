@@ -13,13 +13,13 @@ import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.utils.Pagination;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -109,9 +109,6 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение списка бронирования для владельца id = " + userId + " по state = " + state);
         handleOptionalUser(userRepository.findById(userId), userId);
         List<Item> ownerItems = itemRepository.findAllByOwnerIsOrderById(userId);
-        if (ownerItems.size() == 0) {
-            return new ArrayList<>();
-        }
         Pageable pageable;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         Page<Booking> page;
@@ -157,7 +154,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Товар с id = " + item.getId() + " недоступен для бронирования");
         }
         if (userId == item.getOwner()) {
-            throw new ItemNotFoundException("Запрошено бронирование " + item + " владельцем");
+            throw new ItemNotFoundException("Запрошено бронирование вещи id = " + item.getId() + " владельцем");
         }
         Booking saved = bookingRepository.save(BookingDtoMapper.toBooking(bookingDtoIn, item, user));
         log.info("Сохранено бронирование " + saved + " пользователя с id = " + userId);
@@ -192,7 +189,7 @@ public class BookingServiceImpl implements BookingService {
                 page = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.WAITING, pageable);
                 break;
             case CURRENT:
-                page = bookingRepository.findAllByBookerAndCurrentOrderByStartAsc(user, pageable);
+                page = bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(user, pageable);
                 break;
             case PAST:
                 page = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user, pageable);

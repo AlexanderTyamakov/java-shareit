@@ -21,7 +21,7 @@ public class BookingDtoMapper {
 
     public static Booking toBooking(BookingDtoIn bookingDtoIn, Item item, User booker) {
         return new Booking(
-                bookingDtoIn.getId(),
+                null,
                 bookingDtoIn.getStart(),
                 bookingDtoIn.getEnd(),
                 item,

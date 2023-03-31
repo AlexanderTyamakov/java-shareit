@@ -9,14 +9,16 @@ public class Pagination {
     private Integer index;
     private Integer totalPages;
 
-
     public Pagination(Integer from, Integer size) {
         if (size != null) {
-            if ((from < 0) || (size < 0)) {
-                throw new ValidationException("Значение не может быть меньше нуля!");
+            if (from < 0) {
+                throw new ValidationException("Значение номера первой записи не может быть меньше нуля!");
+            }
+            if (size < 0) {
+                throw new ValidationException("Значение размера страницы не может быть меньше нуля!");
             }
             if (size.equals(0)) {
-                throw new ValidationException("Значение должно быть больше нуля!");
+                throw new ValidationException("Значение размера страницы должно быть больше нуля!");
             }
         }
         pageSize = from;
