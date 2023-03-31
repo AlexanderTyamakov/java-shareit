@@ -6,7 +6,6 @@ import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.utils.Create;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Getter
