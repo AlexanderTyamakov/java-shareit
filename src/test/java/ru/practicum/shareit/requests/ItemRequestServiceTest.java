@@ -104,8 +104,8 @@ public class ItemRequestServiceTest {
         UserDto firstUserDto = userService.saveUser(userDto3);
         ItemRequestDtoOut newItemRequestDto = itemRequestService.saveRequest(firstUserDto.getId(), itemRequestDtoIn,
                 LocalDateTime.of(2023, 1, 2, 3, 4, 5));
-        ItemRequestDtoOut returnItemRequestDto = itemRequestService.getItemRequestById(newItemRequestDto.getId(),
-                1L);
+        ItemRequestDtoOut returnItemRequestDto = itemRequestService.getItemRequestById(firstUserDto.getId(),
+                newItemRequestDto.getId());
         assertThat(returnItemRequestDto.getDescription(), equalTo(itemRequestDto.getDescription()));
     }
 }
