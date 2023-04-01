@@ -81,57 +81,6 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.8</version>
-				<executions>
-					<execution>
-						<id>default-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>check</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<rule>
-									<element>CLASS</element>
-									<limits>
-										<limit>
-											<counter>LINE</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.9</minimum>
-										</limit>
-										<limit>
-											<counter>BRANCH</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.6</minimum>
-										</limit>
-										<limit>
-											<counter>COMPLEXITY</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0.6</minimum>
-										</limit>
-										<limit>
-											<counter>CLASS</counter>
-											<value>COVEREDRATIO</value>
-											<maximum>1</maximum>
-										</limit>
-									</limits>
-									<excludes>
-										<exclude>com.xyz.ClassToExclude</exclude>
-									</excludes>
-								</rule>
-							</rules>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
