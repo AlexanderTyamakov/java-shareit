@@ -47,25 +47,15 @@ public class ItemServiceImpl implements ItemService {
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
         Page<Item> page;
         Pagination pager = new Pagination(from, size);
-        if (size == null) {
-            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
-            do {
-                page = itemRepository.findAllByOwnerIs(userId, pageable);
-                items.addAll(page.stream().collect(toList()));
-                pageable = pageable.next();
-            } while (page.hasNext());
-
-        } else {
-            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-                pageable = PageRequest.of(i, pager.getPageSize(), sort);
-                page = itemRepository.findAllByOwnerIs(userId, pageable);
-                items.addAll(page.stream().collect(toList()));
-                if (!page.hasNext()) {
-                    break;
-                }
+        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+            pageable = PageRequest.of(i, pager.getPageSize(), sort);
+            page = itemRepository.findAllByOwnerIs(userId, pageable);
+            items.addAll(page.stream().collect(toList()));
+            if (!page.hasNext()) {
+                break;
             }
-            items = items.stream().limit(size).collect(toList());
         }
+        items = items.stream().limit(size).collect(toList());
         List<ItemDto> itemDtoList = new ArrayList<>();
         List<Booking> bookings = bookingRepository.findAllByItemInAndStatusIsNot(items, BookingStatus.REJECTED);
         List<Comment> comments = commentRepository.findAllByItemIdIn(items);
@@ -150,25 +140,16 @@ public class ItemServiceImpl implements ItemService {
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
         Page<Item> page;
         Pagination pager = new Pagination(from, size);
-        if (size == null) {
-            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
-            do {
-                page = itemRepository.searchByNameAndDescription(text.toLowerCase(), pageable);
-                foundList.addAll(page.stream().collect(toList()));
-                pageable = pageable.next();
-            } while (page.hasNext());
-
-        } else {
-            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-                pageable = PageRequest.of(i, pager.getPageSize(), sort);
-                page = itemRepository.searchByNameAndDescription(text.toLowerCase(), pageable);
-                foundList.addAll(page.stream().collect(toList()));
-                if (!page.hasNext()) {
-                    break;
-                }
+        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+            pageable = PageRequest.of(i, pager.getPageSize(), sort);
+            page = itemRepository.searchByNameAndDescription(text.toLowerCase(), pageable);
+            foundList.addAll(page.stream().collect(toList()));
+            if (!page.hasNext()) {
+                break;
             }
-            foundList = foundList.stream().limit(size).collect(toList());
         }
+        foundList = foundList.stream().limit(size).collect(toList());
+
         log.info("Найдены вещи по запросу query = " + text + ": " + foundList);
         return foundList.stream()
                 .map(x -> mapWithBookingsAndComments(x, false))

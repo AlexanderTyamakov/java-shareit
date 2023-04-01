@@ -14,7 +14,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
 
-
 import java.util.List;
 
 @RestController
@@ -26,7 +25,7 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(defaultValue = "0") Integer from,
-                                     @RequestParam(required = false) Integer size) {
+                                     @RequestParam(defaultValue = "10") Integer size) {
         return itemService.getAllItemsOfUser(userId, from, size);
     }
 
@@ -48,7 +47,7 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text,
                                     @RequestParam(defaultValue = "0") Integer from,
-                                    @RequestParam(required = false) Integer size) {
+                                    @RequestParam(defaultValue = "10") Integer size) {
         return itemService.searchItem(userId, text, from, size);
     }
 

@@ -44,7 +44,8 @@ public class ItemRequestServiceImplTest {
     private UserDto userDto = new UserDto(1L, "Alex", "alex@alex.ru");
 
     private ItemDto itemDto = new ItemDto(1L, "itemName", "itemDescription", true, 1L, null, null, null);
-    private ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn("ItemRequest description");
+    private ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn(1L, "ItemRequest description",
+            LocalDateTime.of(2022, 1, 2, 3, 4, 5));
     private ItemRequestDtoOut itemRequestDto = new ItemRequestDtoOut(1L, "ItemRequest description",
             userDto, LocalDateTime.of(2022, 1, 2, 3, 4, 5), null);
 

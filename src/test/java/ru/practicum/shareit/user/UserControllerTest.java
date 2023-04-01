@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,11 +30,11 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private UserDto userDto = new UserDto(1L, "Jack", "jack@jack.ru");
+    private UserDto userDto = new UserDto(8L, "Jack", "jack@jack.ru");
 
     private List<UserDto> listUserDto = List.of(
-            new UserDto(1L, "Ivan", "ivan@ivan.ru"),
-            new UserDto(2L, "Egor", "egor@egor.ru"));
+            new UserDto(10L, "Ivan", "ivan@ivan.ru"),
+            new UserDto(20L, "Egor", "egor@egor.ru"));
 
     @Test
     void getAllUsers() throws Exception {
@@ -49,9 +50,9 @@ public class UserControllerTest {
 
     @Test
     void getUserById() throws Exception {
-        when(userService.getUserById(any(Long.class)))
+        when(userService.getUserById(eq(8L)))
                 .thenReturn(userDto);
-        mvc.perform(get("/users/1"))
+        mvc.perform(get("/users/8"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
@@ -77,9 +78,9 @@ public class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
-        when(userService.updateUser(any(Long.class), any()))
+        when(userService.updateUser(eq(8L), any()))
                 .thenReturn(userDto);
-        mvc.perform(patch("/users/1")
+        mvc.perform(patch("/users/8")
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +94,7 @@ public class UserControllerTest {
 
     @Test
     void deleteUser() throws Exception {
-        mvc.perform(delete("/users/1"))
+        mvc.perform(delete("/users/8"))
                 .andExpect(status().isOk());
     }
 }

@@ -32,8 +32,8 @@ public class BookingDtoInTest {
     @BeforeEach
     void beforeEach() {
         bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2055,10,10,12,30),
-                LocalDateTime.of(2060,10,10,12,30),
+                LocalDateTime.of(2055, 10, 10, 12, 30),
+                LocalDateTime.of(2060, 10, 10, 12, 30),
                 2L);
     }
 
@@ -50,7 +50,6 @@ public class BookingDtoInTest {
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isEmpty();
     }
-
 
 
     @Test

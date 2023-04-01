@@ -33,12 +33,12 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDtoOut> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(defaultValue = "0") Integer from,
-                                                      @RequestParam(required = false) Integer size) {
+                                                      @RequestParam(defaultValue = "10") Integer size) {
         return itemRequestService.getAllItemRequests(userId, from, size);
     }
 
     @PostMapping
-    public ItemRequestDtoOut saveRequest(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated ItemRequestDtoIn itemRequestDtoIn) {
+    public ItemRequestDtoIn saveRequest(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated ItemRequestDtoIn itemRequestDtoIn) {
         return itemRequestService.saveRequest(userId, itemRequestDtoIn, LocalDateTime.now());
     }
 

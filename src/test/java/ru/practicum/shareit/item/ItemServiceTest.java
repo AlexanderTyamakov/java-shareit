@@ -98,19 +98,10 @@ public class ItemServiceTest {
     }
 
     @Test
-    void shouldReturnItemsByOwnerSizeNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        itemService.saveItem(ownerDto.getId(), itemDto);
-        itemService.saveItem(ownerDto.getId(), itemDto2);
-        List<ItemDto> listItems = itemService.getAllItemsOfUser(ownerDto.getId(), 0, null);
-        assertEquals(2, listItems.size());
-    }
-
-    @Test
     void shouldReturnItemsByIdOwner() {
         UserDto ownerDto = userService.saveUser(userDto1);
         ItemDto item = itemService.saveItem(ownerDto.getId(), itemDto);
-        ItemDto returned = itemService.getItemById(ownerDto.getId(),item.getId());
+        ItemDto returned = itemService.getItemById(ownerDto.getId(), item.getId());
         assertEquals(item.getId(), returned.getId());
     }
 
@@ -119,7 +110,7 @@ public class ItemServiceTest {
         UserDto ownerDto = userService.saveUser(userDto1);
         UserDto userDto = userService.saveUser(userDto2);
         ItemDto item = itemService.saveItem(ownerDto.getId(), itemDto);
-        ItemDto returned = itemService.getItemById(userDto.getId(),item.getId());
+        ItemDto returned = itemService.getItemById(userDto.getId(), item.getId());
         assertEquals(item.getId(), returned.getId());
     }
 
@@ -131,15 +122,6 @@ public class ItemServiceTest {
         itemService.saveItem(ownerDto2.getId(), itemDto2);
         List<ItemDto> listItems = itemService.searchItem(ownerDto2.getId(), "item", 0, 1);
         assertEquals(1, listItems.size());
-    }
-
-    @Test
-    void shouldReturnItemsBySearchWhenSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        itemService.saveItem(ownerDto.getId(), itemDto);
-        itemService.saveItem(ownerDto.getId(), itemDto2);
-        List<ItemDto> listItems = itemService.searchItem(ownerDto.getId(), "item", 0, null);
-        assertEquals(2, listItems.size());
     }
 
     @Test

@@ -12,6 +12,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,14 +32,18 @@ public class ItemRequestDtoInTest {
     @BeforeEach
     void beforeEach() {
         itemRequestDtoIn = new ItemRequestDtoIn(
-                "some description"
+                1L,
+                "some description",
+                LocalDateTime.of(2060, 10, 10, 12, 30)
         );
     }
 
     @Test
     void testJsonItemRequestDto() throws Exception {
         JsonContent<ItemRequestDtoIn> result = json.write(itemRequestDtoIn);
+        assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("some description");
+        assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo("2060-10-10T12:30:00");
     }
 
     @Test

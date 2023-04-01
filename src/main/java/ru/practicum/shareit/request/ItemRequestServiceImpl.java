@@ -21,10 +21,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.utils.Pagination;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -52,7 +49,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = handleOptionalUser(userRepository.findById(userId), userId);
         List<ItemRequest> requests = itemRequestRepository.findAllByRequestorIsOrderByCreatedDesc(user);
         return getItemRequestDtoOuts(requests);
-
     }
 
     @Override
@@ -63,42 +59,42 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Page<ItemRequest> page;
         Pagination pager = new Pagination(from, size);
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        if (size == null) {
-            listItemRequest = itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user).stream()
-                    .skip(from).collect(toList());
-        } else {
-            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-                pageable = PageRequest.of(i, pager.getPageSize(), sort);
-                page = itemRequestRepository.findAllByRequestorNot(user, pageable);
-                listItemRequest.addAll(page.stream().collect(toList()));
-                if (!page.hasNext()) {
-                    break;
-                }
+        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+            pageable = PageRequest.of(i, pager.getPageSize(), sort);
+            page = itemRequestRepository.findAllByRequestorNot(user, pageable);
+            listItemRequest.addAll(page.stream().collect(toList()));
+            if (!page.hasNext()) {
+                break;
             }
-            listItemRequest = listItemRequest.stream().limit(size).collect(toList());
         }
+        listItemRequest = listItemRequest.stream().limit(size).collect(toList());
         return getItemRequestDtoOuts(listItemRequest);
     }
 
     @Override
-    public ItemRequestDtoOut saveRequest(long userId, ItemRequestDtoIn itemRequestDtoIn, LocalDateTime localDateTime) {
+    public ItemRequestDtoIn saveRequest(long userId, ItemRequestDtoIn itemRequestDtoIn, LocalDateTime localDateTime) {
         User user = handleOptionalUser(userRepository.findById(userId), userId);
         ItemRequest itemRequest = ItemRequestDtoMapper.toItemRequest(itemRequestDtoIn, user, localDateTime);
-        itemRequestRepository.save(itemRequest);
-        ItemRequest created = itemRequestRepository.findFirstByOrderByIdDesc();
-        List<ItemDtoRequest> items = itemRepository.findAllByRequestIs(created.getId()).stream()
-                .map(ItemDtoMapper::itemDtoRequest).collect(toList());
-        return ItemRequestDtoMapper.toItemRequestOut(created, items);
+        ItemRequest request = itemRequestRepository.save(itemRequest);
+        Long id = request.getId();
+        LocalDateTime created = request.getCreated();
+        itemRequestDtoIn.setId(id);
+        itemRequestDtoIn.setCreated(created);
+        return itemRequestDtoIn;
     }
 
     private List<ItemRequestDtoOut> getItemRequestDtoOuts(List<ItemRequest> requests) {
         List<Long> requestsId = requests.stream().map(ItemRequest::getId).collect(Collectors.toList());
         List<Item> items = itemRepository.findAllByRequestIn(requestsId);
+        Map<Long, List<ItemDtoRequest>> itemsMap = new HashMap<>();
+        for (Long request : requestsId) {
+            itemsMap.put(request, items.stream()
+                    .filter(x -> Objects.equals(x.getRequest(), request))
+                    .map(ItemDtoMapper::itemDtoRequest)
+                    .collect(Collectors.toList()));
+        }
         return requests.stream()
-                .map(x -> ItemRequestDtoMapper.toItemRequestOut(x, items.stream()
-                        .filter(y -> Objects.equals(y.getRequest(), x.getId()))
-                        .map(ItemDtoMapper::itemDtoRequest)
-                        .collect(Collectors.toList())))
+                .map(x -> ItemRequestDtoMapper.toItemRequestOut(x, itemsMap.get(x.getId())))
                 .collect(Collectors.toList());
     }
 

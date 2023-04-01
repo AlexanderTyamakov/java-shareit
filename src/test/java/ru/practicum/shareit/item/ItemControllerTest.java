@@ -14,12 +14,11 @@ import ru.practicum.shareit.user.User;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,25 +35,22 @@ public class ItemControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private User user = new User(1L, "Jack", "jack@jack.ru");
-    private Item item = new Item(1L, "Item", "Description", true, 1L, null);
-    private ItemDto itemDto = new ItemDto(1L, "Item", "Description", true, null,
+    private User user = new User(4L, "Jack", "jack@jack.ru");
+    private ItemDto itemDto = new ItemDto(8L, "Item", "Description", true, null,
             null, null, null);
-
-    private CommentDtoOut commentDtoOut = new CommentDtoOut(1L, "Text comment",
+    private CommentDtoOut commentDtoOut = new CommentDtoOut(11L, "Text comment",
             user.getName(), LocalDateTime.of(2022, 3, 5, 1, 2, 3));
-    private List listItemDto = new ArrayList<>();
 
     @Test
     void saveItem() throws Exception {
-        when(itemService.saveItem(any(Long.class), any()))
+        when(itemService.saveItem(eq(4L), any()))
                 .thenReturn(itemDto);
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 4L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDto.getName())))
@@ -64,14 +60,13 @@ public class ItemControllerTest {
 
     @Test
     void getItem() throws Exception {
-        when(itemService.getItemById(any(Long.class), any(Long.class)))
+        when(itemService.getItemById(eq(4L), eq(8L)))
                 .thenReturn(itemDto);
-        mvc.perform(get("/items/1")
-                        .content(mapper.writeValueAsString(itemDto))
+        mvc.perform(get("/items/8")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 4))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
@@ -82,14 +77,13 @@ public class ItemControllerTest {
 
     @Test
     void getAllItems() throws Exception {
-        when(itemService.getAllItemsOfUser(any(Long.class), any(Integer.class), nullable(Integer.class)))
+        when(itemService.getAllItemsOfUser(eq(4L), any(Integer.class), any(Integer.class)))
                 .thenReturn(List.of(itemDto));
         mvc.perform(get("/items")
-                        .content(mapper.writeValueAsString(listItemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 4))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].id", is(itemDto.getId()), Long.class))
@@ -100,14 +94,14 @@ public class ItemControllerTest {
 
     @Test
     void updateItem() throws Exception {
-        when(itemService.updateItem(any(Long.class), any(), any(Long.class)))
+        when(itemService.updateItem(eq(4L), any(), eq(11L)))
                 .thenReturn(itemDto);
-        mvc.perform(patch("/items/1")
+        mvc.perform(patch("/items/11")
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 4))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
@@ -118,14 +112,13 @@ public class ItemControllerTest {
 
     @Test
     void searchItem() throws Exception {
-        when(itemService.searchItem(any(Long.class), any(String.class), nullable(Integer.class), nullable(Integer.class)))
+        when(itemService.searchItem(eq(4L), any(String.class), any(Integer.class), any(Integer.class)))
                 .thenReturn(List.of(itemDto));
         mvc.perform(get("/items/search?text=description")
-                        .content(mapper.writeValueAsString(listItemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 4))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].id", is(itemDto.getId()), Long.class))
@@ -136,14 +129,14 @@ public class ItemControllerTest {
 
     @Test
     void addComment() throws Exception {
-        when(itemService.addComment(any(Long.class), any(), any(Long.class)))
+        when(itemService.addComment(eq(4L), any(), eq(8L)))
                 .thenReturn(commentDtoOut);
-        mvc.perform(post("/items/1/comment")
+        mvc.perform(post("/items/8/comment")
                         .content(mapper.writeValueAsString(commentDtoOut))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1))
+                        .header("X-Sharer-User-Id", 4))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(commentDtoOut.getId()), Long.class))
                 .andExpect(jsonPath("$.text", is(commentDtoOut.getText())))

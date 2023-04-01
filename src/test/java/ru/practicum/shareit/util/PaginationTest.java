@@ -76,24 +76,4 @@ public class PaginationTest {
         assertThat(pager.getPageSize()).isEqualTo(5);
         assertThat(pager.getTotalPages()).isEqualTo(1);
     }
-
-    @Test
-    public void whenFromEqualsZeroAndSizeNullThenResultCorrectly() {
-        Integer from = 0;
-        Integer size = null;
-        Pagination pager = new Pagination(from, size);
-        assertThat(pager.getIndex()).isEqualTo(0);
-        assertThat(pager.getPageSize()).isEqualTo(1000);
-        assertThat(pager.getTotalPages()).isEqualTo(0);
-    }
-
-    @Test
-    public void whenFroPositiveAndSizeNullThenResultCorrectly() {
-        Integer from = 1;
-        Integer size = null;
-        Pagination pager = new Pagination(from, size);
-        assertThat(pager.getIndex()).isEqualTo(1);
-        assertThat(pager.getPageSize()).isEqualTo(1);
-        assertThat(pager.getTotalPages()).isEqualTo(0);
-    }
 }

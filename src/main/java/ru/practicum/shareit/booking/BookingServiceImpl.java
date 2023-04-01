@@ -67,27 +67,16 @@ public class BookingServiceImpl implements BookingService {
         Page<Booking> page;
         Pagination pager = new Pagination(from, size);
         List<Booking> bookings = new ArrayList<>();
-
-        if (size == null) {
-            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
-            do {
-                page = getPageBookings(state, user, pageable);
-                bookings.addAll(page.stream().collect(toList()));
-                pageable = pageable.next();
-            } while (page.hasNext());
-
-        } else {
-            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-                pageable =
-                        PageRequest.of(i, pager.getPageSize(), sort);
-                page = getPageBookings(state, user, pageable);
-                bookings.addAll(page.stream().collect(toList()));
-                if (!page.hasNext()) {
-                    break;
-                }
+        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+            pageable =
+                    PageRequest.of(i, pager.getPageSize(), sort);
+            page = getPageBookings(state, user, pageable);
+            bookings.addAll(page.stream().collect(toList()));
+            if (!page.hasNext()) {
+                break;
             }
-            bookings = bookings.stream().limit(size).collect(toList());
         }
+        bookings = bookings.stream().limit(size).collect(toList());
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
                 .map(x -> BookingDtoMapper.toBookingDtoOut(x, x.getItem()))
@@ -114,26 +103,15 @@ public class BookingServiceImpl implements BookingService {
         Page<Booking> page;
         Pagination pager = new Pagination(from, size);
         List<Booking> bookings = new ArrayList<>();
-
-        if (size == null) {
-            pageable = PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
-            do {
-                page = getPageOwnerBookings(state, ownerItems, pageable);
-                bookings.addAll(page.stream().collect(toList()));
-                pageable = pageable.next();
-            } while (page.hasNext());
-
-        } else {
-            for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-                pageable = PageRequest.of(i, pager.getPageSize(), sort);
-                page = getPageOwnerBookings(state, ownerItems, pageable);
-                bookings.addAll(page.stream().collect(toList()));
-                if (!page.hasNext()) {
-                    break;
-                }
+        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
+            pageable = PageRequest.of(i, pager.getPageSize(), sort);
+            page = getPageOwnerBookings(state, ownerItems, pageable);
+            bookings.addAll(page.stream().collect(toList()));
+            if (!page.hasNext()) {
+                break;
             }
-            bookings = bookings.stream().limit(size).collect(toList());
         }
+        bookings = bookings.stream().limit(size).collect(toList());
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
         return bookings.stream()
                 .map(x -> BookingDtoMapper.toBookingDtoOut(x, x.getItem()))

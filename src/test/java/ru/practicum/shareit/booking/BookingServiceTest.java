@@ -162,24 +162,6 @@ public class BookingServiceTest {
         assertEquals("Unknown state: SHOW ME", exp.getMessage());
     }
 
-    @Test
-    void shouldReturnBookingsWhenGetBookingsByBookerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2025, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2025, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.of(2026, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2026, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "ALL", 0, null);
-        assertEquals(2, listBookings.size());
-    }
 
     @Test
     void shouldReturnBookingsWhenGetBookingsByBookerAndSizeIsNotNull() {
@@ -198,26 +180,6 @@ public class BookingServiceTest {
         bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
         List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "ALL", 0, 1);
         assertEquals(1, listBookings.size());
-    }
-
-    @Test
-    void shouldReturnBookingsWhenGetBookingsInWaitingStatusByBookerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2025, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2025, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.of(2026, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2026, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "WAITING",
-                0, null);
-        assertEquals(2, listBookings.size());
     }
 
     @Test
@@ -241,26 +203,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    void shouldReturnBookingsWhenGetBookingsInRejectedStatusByBookerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2025, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2025, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.of(2026, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2026, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "REJECTED",
-                0, null);
-        assertEquals(0, listBookings.size());
-    }
-
-    @Test
     void shouldReturnBookingsWhenGetBookingsInRejectedStatusByBookerAndSizeNotNull() {
         UserDto ownerDto = userService.saveUser(userDto1);
         UserDto newUserDto = userService.saveUser(userDto2);
@@ -278,26 +220,6 @@ public class BookingServiceTest {
         List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "REJECTED",
                 0, 1);
         assertEquals(0, listBookings.size());
-    }
-
-    @Test
-    void shouldReturnBookingsWhenGetBookingsInCurrentStatusByBookerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.now().minus(10, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(10, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.now().minus(11, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(11, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "CURRENT",
-                0, null);
-        assertEquals(2, listBookings.size());
     }
 
     @Test
@@ -320,25 +242,6 @@ public class BookingServiceTest {
         assertEquals(1, listBookings.size());
     }
 
-    @Test
-    void shouldReturnBookingsWhenGetBookingsInPastStatusByBookerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.now().minus(10, ChronoUnit.MINUTES),
-                LocalDateTime.now().minus(5, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.now().minus(11, ChronoUnit.MINUTES),
-                LocalDateTime.now().minus(6, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "PAST",
-                0, null);
-        assertEquals(2, listBookings.size());
-    }
 
     @Test
     void shouldReturnBookingsWhenGetBookingsInPastStatusByBookerAndSizeNotNull() {
@@ -358,26 +261,6 @@ public class BookingServiceTest {
         List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "PAST",
                 0, 1);
         assertEquals(1, listBookings.size());
-    }
-
-    @Test
-    void shouldReturnBookingsWhenGetBookingsInFutureStatusByBookerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.now().plus(10, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.now().plus(11, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(16, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfUser(newUserDto.getId(), "FUTURE",
-                0, null);
-        assertEquals(2, listBookings.size());
     }
 
     @Test
@@ -408,25 +291,6 @@ public class BookingServiceTest {
         assertEquals("Unknown state: SHOW ME", exp.getMessage());
     }
 
-    @Test
-    void shouldReturnBookingsWhenGetBookingsByOwnerAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2025, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2025, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.of(2026, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2026, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "ALL",
-                0, null);
-        assertEquals(2, listBookings.size());
-    }
 
     @Test
     void shouldReturnBookingsWhenGetBookingsByOwnerAndSizeNotNull() {
@@ -448,25 +312,6 @@ public class BookingServiceTest {
         assertEquals(1, listBookings.size());
     }
 
-    @Test
-    void shouldReturnBookingsWhenGetBookingsByOwnerAndStatusWaitingAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2025, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2025, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.of(2026, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2026, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "WAITING",
-                0, null);
-        assertEquals(2, listBookings.size());
-    }
 
     @Test
     void shouldReturnBookingsWhenGetBookingsByOwnerAndStatusWaitingAndSizeNotNull() {
@@ -486,26 +331,6 @@ public class BookingServiceTest {
         List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "WAITING",
                 0, 1);
         assertEquals(1, listBookings.size());
-    }
-
-    @Test
-    void shouldReturnBookingsWhenGetBookingsByOwnerAndStatusRejectedAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.of(2025, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2025, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.of(2026, 12, 25, 12, 00, 00),
-                LocalDateTime.of(2026, 12, 26, 12, 00, 00),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "REJECTED",
-                0, null);
-        assertEquals(0, listBookings.size());
     }
 
     @Test
@@ -529,26 +354,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    void shouldReturnBookingsWhenGetBookingsByOwnerInCurrentStatusAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.now().minus(10, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(10, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.now().minus(11, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(11, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "CURRENT",
-                0, null);
-        assertEquals(2, listBookings.size());
-    }
-
-    @Test
     void shouldReturnBookingsWhenGetBookingsByOwnerInCurrentStatusAndSizeNotNull() {
         UserDto ownerDto = userService.saveUser(userDto1);
         UserDto newUserDto = userService.saveUser(userDto2);
@@ -569,26 +374,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    void shouldReturnBookingsWhenGetBookingsByOwnerInPastStatusAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.now().minus(10, ChronoUnit.MINUTES),
-                LocalDateTime.now().minus(5, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.now().minus(11, ChronoUnit.MINUTES),
-                LocalDateTime.now().minus(6, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "PAST",
-                0, null);
-        assertEquals(2, listBookings.size());
-    }
-
-    @Test
     void shouldReturnBookingsWhenGetBookingsByOwnerInPastStatusAndSizeNotNull() {
         UserDto ownerDto = userService.saveUser(userDto1);
         UserDto newUserDto = userService.saveUser(userDto2);
@@ -606,26 +391,6 @@ public class BookingServiceTest {
         List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "PAST",
                 0, 1);
         assertEquals(1, listBookings.size());
-    }
-
-    @Test
-    void shouldReturnBookingsWhenGetBookingsByOwnerInFutureStatusAndSizeIsNull() {
-        UserDto ownerDto = userService.saveUser(userDto1);
-        UserDto newUserDto = userService.saveUser(userDto2);
-        ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
-        BookingDtoIn bookingDtoIn = new BookingDtoIn(
-                LocalDateTime.now().plus(10, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(15, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn);
-        BookingDtoIn bookingDtoIn2 = new BookingDtoIn(
-                LocalDateTime.now().plus(11, ChronoUnit.MINUTES),
-                LocalDateTime.now().plus(16, ChronoUnit.MINUTES),
-                newItemDto.getId());
-        bookingService.saveBooking(newUserDto.getId(), bookingDtoIn2);
-        List<BookingDtoOut> listBookings = bookingService.getBookingsOfOwner(ownerDto.getId(), "FUTURE",
-                0, null);
-        assertEquals(2, listBookings.size());
     }
 
     @Test

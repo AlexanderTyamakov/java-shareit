@@ -16,6 +16,6 @@ public interface ItemRequestService {
     List<ItemRequestDtoOut> getAllItemRequests(long userId, Integer from, Integer size);
 
     @Transactional
-    ItemRequestDtoOut saveRequest(long userId, ItemRequestDtoIn itemRequestDtoIn, LocalDateTime localDateTime);
+    ItemRequestDtoIn saveRequest(long userId, ItemRequestDtoIn itemRequestDtoIn, LocalDateTime localDateTime);
 
 }
