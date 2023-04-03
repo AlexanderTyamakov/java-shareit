@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
@@ -35,6 +37,9 @@ public class ItemControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    private ValidationException validationException = new ValidationException("Validation Error");
+    private RuntimeException runtimeException = new RuntimeException("Runtime Error");
+    private NotFoundException notFoundException = new NotFoundException("Booking not found");
     private User user = new User(4L, "Jack", "jack@jack.ru");
     private ItemDto itemDto = new ItemDto(8L, "Item", "Description", true, null,
             null, null, null);
@@ -142,5 +147,47 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.text", is(commentDtoOut.getText())))
                 .andExpect(jsonPath("$.authorName", is(commentDtoOut.getAuthorName())))
                 .andExpect(jsonPath("$.created", is(commentDtoOut.getCreated().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))));
+    }
+
+    @Test
+    void handleValidationExceptionTest() throws Exception {
+        when(itemService.addComment(eq(-1L), any(), eq(87L)))
+                .thenThrow(validationException);
+        mvc.perform(post("/items/87/comment")
+                        .content(mapper.writeValueAsString(commentDtoOut))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", -1))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description", is("Ошибка в отправленных данных")));
+    }
+
+    @Test
+    void handleRuntimeExceptionTest() throws Exception {
+        when(itemService.addComment(eq(5L), any(), eq(6L)))
+                .thenThrow(runtimeException);
+        mvc.perform(post("/items/6/comment")
+                        .content(mapper.writeValueAsString(commentDtoOut))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 5))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.description", is("Возникла ошибка")));
+    }
+
+    @Test
+    void handleNotFoundExceptionTest() throws Exception {
+        when(itemService.addComment(eq(0L), any(), eq(78L)))
+                .thenThrow(notFoundException);
+        mvc.perform(post("/items/78/comment")
+                        .content(mapper.writeValueAsString(commentDtoOut))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.description", is("Отсутствует объект")));
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
@@ -35,6 +37,10 @@ public class ItemRequestControllerTest {
     ItemRequestService itemRequestService;
     @Autowired
     private MockMvc mvc;
+
+    private ValidationException validationException = new ValidationException("Validation Error");
+    private RuntimeException runtimeException = new RuntimeException("Runtime Error");
+    private NotFoundException notFoundException = new NotFoundException("Booking not found");
     private UserDto userDto = new UserDto(12L, "Alex", "alex@alex.ru");
 
     private ItemRequestDtoOut itemRequestDtoOut = new ItemRequestDtoOut(20L, "ItemRequest description",
@@ -51,7 +57,7 @@ public class ItemRequestControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 12L))
+                        .header("X-Sharer-User-Id", 12))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemRequestDtoIn.getId()), Long.class))
                 .andExpect(jsonPath("$.description", is(itemRequestDtoIn.getDescription())))
@@ -66,7 +72,7 @@ public class ItemRequestControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 12L))
+                        .header("X-Sharer-User-Id", 12))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemRequestDtoOut.getId()), Long.class))
                 .andExpect(jsonPath("$.description", is(itemRequestDtoOut.getDescription())))
@@ -84,7 +90,7 @@ public class ItemRequestControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 12L))
+                        .header("X-Sharer-User-Id", 12))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is(itemRequestDtoOut.getId()), Long.class))
                 .andExpect(jsonPath("$.[0].description", is(itemRequestDtoOut.getDescription())))
@@ -102,7 +108,7 @@ public class ItemRequestControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 12L))
+                        .header("X-Sharer-User-Id", 12))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].id", is(itemRequestDtoOut.getId()), Long.class))
                 .andExpect(jsonPath("$.[0].description", is(itemRequestDtoOut.getDescription())))
@@ -110,5 +116,31 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.[0].requestor.name", is(itemRequestDtoOut.getRequestor().getName())))
                 .andExpect(jsonPath("$.[0].requestor.email", is(itemRequestDtoOut.getRequestor().getEmail())))
                 .andExpect(jsonPath("$.[0].created", is(itemRequestDtoOut.getCreated().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))));
+    }
+
+    @Test
+    void handleRuntimeExceptionTest() throws Exception {
+        when(itemRequestService.getAllItemRequests(eq(17L), any(Integer.class), any(Integer.class)))
+                .thenThrow(runtimeException);
+        mvc.perform(get("/requests/all")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 17))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.description", is("Возникла ошибка")));
+    }
+
+    @Test
+    void handleNotFoundExceptionTest() throws Exception {
+        when(itemRequestService.getAllItemRequests(eq(18L), any(Integer.class), any(Integer.class)))
+                .thenThrow(notFoundException);
+        mvc.perform(get("/requests/all")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 18))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.description", is("Отсутствует объект")));
     }
 }

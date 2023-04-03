@@ -10,6 +10,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookerDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDtoShort;
 
 import java.nio.charset.StandardCharsets;
@@ -34,6 +36,10 @@ public class BookingControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    private ValidationException validationException = new ValidationException("Validation Error");
+    private RuntimeException runtimeException = new RuntimeException("Runtime Error");
+    private NotFoundException notFoundException = new NotFoundException("Booking not found");
 
     private BookingDtoIn bookingDtoIn = new BookingDtoIn(
             LocalDateTime.of(2025, 12, 25, 12, 00, 00),
@@ -148,5 +154,47 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.end",
                         is(bookingDtoOut.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
                 .andExpect(jsonPath("$.status", is(bookingDtoOut.getStatus().toString())));
+    }
+
+    @Test
+    void handleValidationExceptionTest() throws Exception {
+        when(bookingService.changeStatus(eq(-1L), eq(500L), any(Boolean.class)))
+                .thenThrow(validationException);
+        mvc.perform(patch("/bookings/500")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", -1)
+                        .queryParam("approved", "true"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description", is("Ошибка в отправленных данных")));
+    }
+
+    @Test
+    void handleRuntimeExceptionTest() throws Exception {
+        when(bookingService.changeStatus(eq(5L), eq(50L), any(Boolean.class)))
+                .thenThrow(runtimeException);
+        mvc.perform(patch("/bookings/50")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 5)
+                        .queryParam("approved", "true"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.description", is("Возникла ошибка")));
+    }
+
+    @Test
+    void handleNotFoundExceptionTest() throws Exception {
+        when(bookingService.changeStatus(eq(0L), eq(10L), any(Boolean.class)))
+                .thenThrow(notFoundException);
+        mvc.perform(patch("/bookings/10")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 0)
+                        .queryParam("approved", "true"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.description", is("Отсутствует объект")));
     }
 }
