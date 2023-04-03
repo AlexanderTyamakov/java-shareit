@@ -7,8 +7,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="shareit-gateway" />
       </profile>
-      <profile name="Annotation profile for ShareIt Server" enabled="true">
+      <profile name="Annotation profile for ShareIt" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -25,6 +26,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="shareit" target="11" />
       <module name="shareit (1)" target="11" />
       <module name="shareit-gateway" target="11" />
       <module name="shareit-server" target="11" />
