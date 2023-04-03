@@ -41,6 +41,7 @@ public class UserGateClient extends BaseClient {
         return patch("/" + userId, userDto);
     }
 
-    public ResponseEntity<Object> deleteUser(Long userId) { return delete("/" + userId);
+    public ResponseEntity<Object> deleteUser(Long userId) {
+        return delete("/" + userId);
     }
 }
