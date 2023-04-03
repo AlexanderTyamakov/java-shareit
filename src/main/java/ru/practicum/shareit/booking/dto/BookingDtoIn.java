@@ -1,22 +1,25 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
 @ToString
 public class BookingDtoIn {
-    private final Long id;
-    @NonNull
-    @FutureOrPresent
-    private final LocalDateTime start;
-    @NonNull
-    @FutureOrPresent
-    private final LocalDateTime end;
-    @NonNull
-    private final Long itemId;
+    @NotNull
+    @FutureOrPresent(message = "Дата начала не может быть меньше текущей даты")
+    private LocalDateTime start;
+    @NotNull
+    @FutureOrPresent(message = "Дата окончания не может быть меньше текущей даты")
+    private LocalDateTime end;
+    @NotNull
+    private Long itemId;
 }

@@ -7,13 +7,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
 
-import javax.validation.ValidationException;
 import java.util.List;
 
 @RestController
@@ -24,8 +24,10 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllItemsOfUser(userId);
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @RequestParam(defaultValue = "0") Integer from,
+                                     @RequestParam(defaultValue = "10") Integer size) {
+        return itemService.getAllItemsOfUser(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -44,12 +46,16 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
-        return itemService.searchItem(userId, text);
+    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text,
+                                    @RequestParam(defaultValue = "0") Integer from,
+                                    @RequestParam(defaultValue = "10") Integer size) {
+        return itemService.searchItem(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDtoOut addComment(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated CommentDtoIn commentDtoIn, @PathVariable Long itemId) {
+    public CommentDtoOut addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                    @RequestBody @Validated CommentDtoIn commentDtoIn,
+                                    @PathVariable Long itemId) {
         return itemService.addComment(userId, commentDtoIn, itemId);
     }
 
@@ -62,10 +68,18 @@ public class ItemController {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handle(final RuntimeException e) {
+        return new ErrorResponse(
+                "Возникла ошибка", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(final NotFoundException e) {
         return new ErrorResponse(
-                "Вещь не найдена", e.getMessage()
+                "Отсутствует объект", e.getMessage()
         );
     }
 }

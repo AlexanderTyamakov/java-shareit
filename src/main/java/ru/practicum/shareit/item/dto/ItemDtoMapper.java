@@ -4,6 +4,7 @@ import ru.practicum.shareit.booking.dto.LastBookingDto;
 import ru.practicum.shareit.booking.dto.NextBookingDto;
 import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,7 +50,17 @@ public class ItemDtoMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
                 owner,
-                null
+                itemDto.getRequestId()
+        );
+    }
+
+    public static ItemDtoRequest itemDtoRequest(Item item) {
+        return new ItemDtoRequest(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                item.getRequest()
         );
     }
 
@@ -61,16 +72,16 @@ public class ItemDtoMapper {
                 (itemDto.getDescription() != null && !itemDto.getDescription().isEmpty()) ? itemDto.getDescription() : item.getDescription(),
                 itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable(),
                 null,
-                null
+                itemDto.getRequestId() != null ? itemDto.getRequestId() : item.getRequest()
         );
     }
 
-    public static Comment toComment(CommentDtoIn commentDtoIn, long itemId, long authorId, LocalDateTime created) {
+    public static Comment toComment(CommentDtoIn commentDtoIn, Item item, User author, LocalDateTime created) {
         return new Comment(
                 0L,
                 commentDtoIn.getText(),
-                itemId,
-                authorId,
+                item,
+                author,
                 created
         );
     }

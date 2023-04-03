@@ -1,13 +1,15 @@
 package ru.practicum.shareit.item;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "items", schema = "public")
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,11 +17,13 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "name", nullable = false)
     private String name;
+    @Column(name = "description", nullable = false, length = 512)
     private String description;
-    @Column(name = "is_available")
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
-    @Column(name = "owner_id")
+    @Column(name = "owner_id", nullable = false)
     private Long owner;
     @Column(name = "request_id")
     private Long request;
