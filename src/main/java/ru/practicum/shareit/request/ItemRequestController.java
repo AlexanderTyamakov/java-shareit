@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,7 +23,8 @@ public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @GetMapping("/{requestId}")
-    public ItemRequestDtoOut getItemRequestById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable("requestId") Long itemRequestId) {
+    public ItemRequestDtoOut getItemRequestById(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                @PathVariable("requestId") Long itemRequestId) {
         return itemRequestService.getItemRequestById(userId, itemRequestId);
     }
 
@@ -32,14 +34,32 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDtoOut> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(defaultValue = "0") Integer from,
+    public List<ItemRequestDtoOut> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                      @RequestParam(defaultValue = "0") Integer from,
                                                       @RequestParam(defaultValue = "10") Integer size) {
         return itemRequestService.getAllItemRequests(userId, from, size);
     }
 
     @PostMapping
-    public ItemRequestDtoIn saveRequest(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated ItemRequestDtoIn itemRequestDtoIn) {
+    public ItemRequestDtoIn saveRequest(@RequestHeader("X-Sharer-User-Id") long userId,
+                                        @RequestBody @Validated ItemRequestDtoIn itemRequestDtoIn) {
         return itemRequestService.saveRequest(userId, itemRequestDtoIn, LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final ValidationException e) {
+        return new ErrorResponse(
+                "Ошибка в отправленных данных", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handle(final RuntimeException e) {
+        return new ErrorResponse(
+                "Возникла ошибка", e.getMessage()
+        );
     }
 
     @ExceptionHandler

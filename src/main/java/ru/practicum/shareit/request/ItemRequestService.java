@@ -13,7 +13,7 @@ public interface ItemRequestService {
 
     List<ItemRequestDtoOut> getItemRequestsOfUser(long userId);
 
-    List<ItemRequestDtoOut> getAllItemRequests(long userId, Integer from, Integer size);
+    List<ItemRequestDtoOut> getAllItemRequests(long userId, int from, int size);
 
     @Transactional
     ItemRequestDtoIn saveRequest(long userId, ItemRequestDtoIn itemRequestDtoIn, LocalDateTime localDateTime);

@@ -18,7 +18,7 @@ public class BookingDtoIn {
     @FutureOrPresent(message = "Дата начала не может быть меньше текущей даты")
     private LocalDateTime start;
     @NotNull
-    @FutureOrPresent(message = "Дата начала не может быть меньше текущей даты")
+    @FutureOrPresent(message = "Дата окончания не может быть меньше текущей даты")
     private LocalDateTime end;
     @NotNull
     private Long itemId;

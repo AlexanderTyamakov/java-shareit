@@ -1,39 +1,21 @@
 package ru.practicum.shareit.utils;
 
 import lombok.Getter;
-import ru.practicum.shareit.exception.ValidationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @Getter
-public class Pagination {
-    private Integer pageSize;
-    private Integer index;
-    private Integer totalPages;
+public class Pagination extends PageRequest {
+    private Integer from;
 
-    public Pagination(Integer from, Integer size) {
-        if (from < 0) {
-            throw new ValidationException("Значение номера первой записи не может быть меньше нуля!");
-        }
-        if (size < 0) {
-            throw new ValidationException("Значение размера страницы не может быть меньше нуля!");
-        }
-        if (size.equals(0)) {
-            throw new ValidationException("Значение размера страницы должно быть больше нуля!");
-        }
-        pageSize = from;
-        index = 1;
-        if (from.equals(size)) {
-            pageSize = size;
-        }
-        if (from.equals(0)) {
-            pageSize = size;
-            index = 0;
-        }
-        totalPages = index + 1;
-        if ((from < size) && (!from.equals(0))) {
-            totalPages = size / from + index;
-            if (size % from != 0) {
-                totalPages++;
-            }
-        }
+
+    public Pagination(int from, int size, Sort sort) {
+        super(from / size, size, sort);
+        this.from = from;
+    }
+
+    @Override
+    public long getOffset() {
+        return this.from;
     }
 }

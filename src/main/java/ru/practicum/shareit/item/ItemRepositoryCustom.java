@@ -1,9 +1,10 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import ru.practicum.shareit.utils.Pagination;
+
+import java.util.List;
 
 public interface ItemRepositoryCustom {
 
@@ -13,6 +14,6 @@ public interface ItemRepositoryCustom {
 
     @Query(value = "select i from Item i " +
             "where i.available = TRUE and " +
-            "(LOWER(i.name) LIKE CONCAT('%',?1,'%') or LOWER(i.description) LIKE CONCAT('%',?1,'%'))")
-    Page<Item> searchByNameAndDescription(String text, Pageable pageable);
+            "(LOWER(i.name) LIKE CONCAT('%',?1,'%') or LOWER(i.description) LIKE CONCAT('%',?1,'%')) ORDER BY i.id asc")
+    List<Item> searchByNameAndDescription(Pagination pageRequest, String text);
 }

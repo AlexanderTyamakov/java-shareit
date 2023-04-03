@@ -143,7 +143,6 @@ public class BookingServiceTest {
         UserDto newUserDto = userService.saveUser(userDto2);
         UserDto userDto3 = new UserDto(103L, "Alex", "alexd@alex.ru");
         userDto3 = userService.saveUser(userDto3);
-        Long userId = userDto3.getId();
         ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
         BookingDtoIn bookingDtoIn = new BookingDtoIn(
                 LocalDateTime.of(2025, 12, 25, 12, 00, 00),
@@ -158,7 +157,7 @@ public class BookingServiceTest {
     void shouldReturnExceptionWhenGetBookingsByBookerAndInvalidState() {
         UserDto newUserDto = userService.saveUser(userDto2);
         ValidationException exp = assertThrows(ValidationException.class,
-                () -> bookingService.getBookingsOfUser(newUserDto.getId(), "SHOW ME", 0, null));
+                () -> bookingService.getBookingsOfUser(newUserDto.getId(), "SHOW ME", 0, 10));
         assertEquals("Unknown state: SHOW ME", exp.getMessage());
     }
 
@@ -287,7 +286,7 @@ public class BookingServiceTest {
     void shouldReturnExceptionWhenGetBookingsByOwnerAndInvalidState() {
         UserDto newUserDto = userService.saveUser(userDto2);
         ValidationException exp = assertThrows(ValidationException.class,
-                () -> bookingService.getBookingsOfOwner(newUserDto.getId(), "SHOW ME", 0, null));
+                () -> bookingService.getBookingsOfOwner(newUserDto.getId(), "SHOW ME", 0, 10));
         assertEquals("Unknown state: SHOW ME", exp.getMessage());
     }
 

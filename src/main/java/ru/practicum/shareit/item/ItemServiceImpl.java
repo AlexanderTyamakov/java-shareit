@@ -2,9 +2,6 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
@@ -28,8 +25,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,22 +35,11 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public List<ItemDto> getAllItemsOfUser(long userId, Integer from, Integer size) {
+    public List<ItemDto> getAllItemsOfUser(long userId, int from, int size) {
         handleOptionalUser(userRepository.findById(userId), userId);
-        List<Item> items = new ArrayList<>();
-        Pageable pageable;
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Page<Item> page;
-        Pagination pager = new Pagination(from, size);
-        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-            pageable = PageRequest.of(i, pager.getPageSize(), sort);
-            page = itemRepository.findAllByOwnerIs(userId, pageable);
-            items.addAll(page.stream().collect(toList()));
-            if (!page.hasNext()) {
-                break;
-            }
-        }
-        items = items.stream().limit(size).collect(toList());
+        Pagination pageRequest = new Pagination(from, size, sort);
+        List<Item> items = itemRepository.findAllByOwnerIs(pageRequest, userId);
         List<ItemDto> itemDtoList = new ArrayList<>();
         List<Booking> bookings = bookingRepository.findAllByItemInAndStatusIsNot(items, BookingStatus.REJECTED);
         List<Comment> comments = commentRepository.findAllByItemIdIn(items);
@@ -129,27 +113,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(long userId, String text, Integer from, Integer size) {
+    public List<ItemDto> searchItem(long userId, String text, int from, int size) {
         log.info("Поиск вещи по запросу {}", text);
         handleOptionalUser(userRepository.findById(userId), userId);
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        List<Item> foundList = new ArrayList<>();
-        Pageable pageable;
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Page<Item> page;
-        Pagination pager = new Pagination(from, size);
-        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-            pageable = PageRequest.of(i, pager.getPageSize(), sort);
-            page = itemRepository.searchByNameAndDescription(text.toLowerCase(), pageable);
-            foundList.addAll(page.stream().collect(toList()));
-            if (!page.hasNext()) {
-                break;
-            }
-        }
-        foundList = foundList.stream().limit(size).collect(toList());
-
+        Pagination pageRequest = new Pagination(from, size, sort);
+        List<Item> foundList = itemRepository.searchByNameAndDescription(pageRequest, text.toLowerCase());
         log.info("Найдены вещи по запросу query = " + text + ": " + foundList);
         return foundList.stream()
                 .map(x -> mapWithBookingsAndComments(x, false))

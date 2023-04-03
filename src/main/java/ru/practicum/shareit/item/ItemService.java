@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<ItemDto> getAllItemsOfUser(long userId, Integer from, Integer size);
+    List<ItemDto> getAllItemsOfUser(long userId, int from, int size);
 
     ItemDto getItemById(long userId, long itemId);
 
@@ -19,7 +19,7 @@ public interface ItemService {
     ItemDto updateItem(long userId, ItemDto itemDto, long itemId);
 
     @Transactional
-    List<ItemDto> searchItem(long userId, String text, Integer from, Integer size);
+    List<ItemDto> searchItem(long userId, String text, int from, int size);
 
     @Transactional
     CommentDtoOut addComment(long userId, CommentDtoIn commentDtoIn, long itemId);

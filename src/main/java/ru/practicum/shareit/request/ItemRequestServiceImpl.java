@@ -2,9 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
@@ -52,22 +49,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDtoOut> getAllItemRequests(long userId, Integer from, Integer size) {
+    public List<ItemRequestDtoOut> getAllItemRequests(long userId, int from, int size) {
         User user = handleOptionalUser(userRepository.findById(userId), userId);
-        List<ItemRequest> listItemRequest = new ArrayList<>();
-        Pageable pageable;
-        Page<ItemRequest> page;
-        Pagination pager = new Pagination(from, size);
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-            pageable = PageRequest.of(i, pager.getPageSize(), sort);
-            page = itemRequestRepository.findAllByRequestorNot(user, pageable);
-            listItemRequest.addAll(page.stream().collect(toList()));
-            if (!page.hasNext()) {
-                break;
-            }
-        }
-        listItemRequest = listItemRequest.stream().limit(size).collect(toList());
+        Pagination pageRequest = new Pagination(from, size, sort);
+        List<ItemRequest> listItemRequest = itemRequestRepository.findAllByRequestorNot(pageRequest, user);
         return getItemRequestDtoOuts(listItemRequest);
     }
 

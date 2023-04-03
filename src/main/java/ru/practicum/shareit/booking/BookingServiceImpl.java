@@ -2,9 +2,6 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -20,12 +17,9 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.utils.Pagination;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getBookingsOfUser(long userId, String query, Integer from, Integer size) {
+    public List<BookingDtoOut> getBookingsOfUser(long userId, String query, int from, int size) {
         BookingState state;
         if (query == null) {
             state = BookingState.ALL;
@@ -62,21 +56,9 @@ public class BookingServiceImpl implements BookingService {
         }
         log.info("Получение списка бронирования для пользователя id = " + userId + " по state = " + state);
         User user = handleOptionalUser(userRepository.findById(userId), userId);
-        Pageable pageable;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        Page<Booking> page;
-        Pagination pager = new Pagination(from, size);
-        List<Booking> bookings = new ArrayList<>();
-        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-            pageable =
-                    PageRequest.of(i, pager.getPageSize(), sort);
-            page = getPageBookings(state, user, pageable);
-            bookings.addAll(page.stream().collect(toList()));
-            if (!page.hasNext()) {
-                break;
-            }
-        }
-        bookings = bookings.stream().limit(size).collect(toList());
+        Pagination pageRequest = new Pagination(from,size,sort);
+        List<Booking> bookings = getPageBookings(state, user, pageRequest);
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
                 .map(x -> BookingDtoMapper.toBookingDtoOut(x, x.getItem()))
@@ -84,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getBookingsOfOwner(long userId, String query, Integer from, Integer size) {
+    public List<BookingDtoOut> getBookingsOfOwner(long userId, String query, int from, int size) {
         BookingState state;
         if (query == null) {
             state = BookingState.ALL;
@@ -98,20 +80,9 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение списка бронирования для владельца id = " + userId + " по state = " + state);
         handleOptionalUser(userRepository.findById(userId), userId);
         List<Item> ownerItems = itemRepository.findAllByOwnerIsOrderById(userId);
-        Pageable pageable;
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        Page<Booking> page;
-        Pagination pager = new Pagination(from, size);
-        List<Booking> bookings = new ArrayList<>();
-        for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
-            pageable = PageRequest.of(i, pager.getPageSize(), sort);
-            page = getPageOwnerBookings(state, ownerItems, pageable);
-            bookings.addAll(page.stream().collect(toList()));
-            if (!page.hasNext()) {
-                break;
-            }
-        }
-        bookings = bookings.stream().limit(size).collect(toList());
+        Pagination pageRequest = new Pagination(from,size,sort);
+        List<Booking> bookings = getPageOwnerBookings(state, ownerItems, pageRequest);
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
         return bookings.stream()
                 .map(x -> BookingDtoMapper.toBookingDtoOut(x, x.getItem()))
@@ -156,51 +127,51 @@ public class BookingServiceImpl implements BookingService {
         return BookingDtoMapper.toBookingDtoOut(newBooking, booking.getItem());
     }
 
-    private Page<Booking> getPageBookings(BookingState state, User user, Pageable pageable) {
-        Page<Booking> page;
+    private List<Booking> getPageBookings(BookingState state, User user, Pagination pageRequest) {
+        List<Booking> page;
         switch (state) {
             case REJECTED:
-                page = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.REJECTED, pageable);
+                page = bookingRepository.findAllByBookerIsAndStatusIs(pageRequest, user, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                page = bookingRepository.findAllByBookerIsAndStatusIsOrderByStartDesc(user, BookingStatus.WAITING, pageable);
+                page = bookingRepository.findAllByBookerIsAndStatusIs(pageRequest, user, BookingStatus.WAITING);
                 break;
             case CURRENT:
-                page = bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(user, pageable);
+                page = bookingRepository.findAllByBookerAndCurrentOrderByStartDesc(pageRequest, user);
                 break;
             case PAST:
-                page = bookingRepository.findAllByBookerAndPastOrderByStartDesc(user, pageable);
+                page = bookingRepository.findAllByBookerAndPastOrderByStartDesc(pageRequest, user);
                 break;
             case FUTURE:
-                page = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(user, pageable);
+                page = bookingRepository.findAllByBookerAndFutureOrderByStartDesc(pageRequest, user);
                 break;
             default:
-                page = bookingRepository.findAllByBookerOrderByStartDesc(user, pageable);
+                page = bookingRepository.findAllByBooker(pageRequest, user);
                 break;
         }
         return page;
     }
 
-    private Page<Booking> getPageOwnerBookings(BookingState state, List<Item> items, Pageable pageable) {
-        Page<Booking> page;
+    private List<Booking> getPageOwnerBookings(BookingState state, List<Item> items, Pagination pageRequest) {
+        List<Booking> page;
         switch (state) {
             case REJECTED:
-                page = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(items, BookingStatus.REJECTED, pageable);
+                page = bookingRepository.findAllByItemInAndStatusIs(pageRequest, items, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                page = bookingRepository.findAllByItemInAndStatusIsOrderByStartDesc(items, BookingStatus.WAITING, pageable);
+                page = bookingRepository.findAllByItemInAndStatusIs(pageRequest, items, BookingStatus.WAITING);
                 break;
             case CURRENT:
-                page = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(items, pageable);
+                page = bookingRepository.findAllByItemsAndCurrentOrderByStartDesc(pageRequest, items);
                 break;
             case PAST:
-                page = bookingRepository.findAllByItemAndPastOrderByStartDesc(items, pageable);
+                page = bookingRepository.findAllByItemAndPastOrderByStartDesc(pageRequest, items);
                 break;
             case FUTURE:
-                page = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(items, pageable);
+                page = bookingRepository.findAllByItemsAndFutureOrderByStartDesc(pageRequest, items);
                 break;
             default:
-                page = bookingRepository.findAllByItemInOrderByStartDesc(items, pageable);
+                page = bookingRepository.findAllByItemIn(pageRequest, items);
                 break;
         }
         return page;

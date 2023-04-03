@@ -24,7 +24,8 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(defaultValue = "0") Integer from,
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @RequestParam(defaultValue = "0") Integer from,
                                      @RequestParam(defaultValue = "10") Integer size) {
         return itemService.getAllItemsOfUser(userId, from, size);
     }
@@ -52,7 +53,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDtoOut addComment(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Validated CommentDtoIn commentDtoIn, @PathVariable Long itemId) {
+    public CommentDtoOut addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                    @RequestBody @Validated CommentDtoIn commentDtoIn,
+                                    @PathVariable Long itemId) {
         return itemService.addComment(userId, commentDtoIn, itemId);
     }
 
@@ -61,6 +64,14 @@ public class ItemController {
     public ErrorResponse handle(final ValidationException e) {
         return new ErrorResponse(
                 "Ошибка в отправленных данных", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handle(final RuntimeException e) {
+        return new ErrorResponse(
+                "Возникла ошибка", e.getMessage()
         );
     }
 

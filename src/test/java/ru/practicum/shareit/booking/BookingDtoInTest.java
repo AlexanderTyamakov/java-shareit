@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JsonTest
 public class BookingDtoInTest {
@@ -57,7 +58,8 @@ public class BookingDtoInTest {
         bookingDtoIn.setStart(null);
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
+        assertTrue((violations.toString()).contains("interpolatedMessage='не должно равняться null'")
+                || (violations.toString()).contains("interpolatedMessage='must not be null'"));
     }
 
     @Test
@@ -65,7 +67,8 @@ public class BookingDtoInTest {
         bookingDtoIn.setEnd(null);
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
+        assertTrue((violations.toString()).contains("interpolatedMessage='не должно равняться null'")
+                || (violations.toString()).contains("interpolatedMessage='must not be null'"));
     }
 
     @Test
@@ -82,7 +85,7 @@ public class BookingDtoInTest {
         bookingDtoIn.setEnd(LocalDateTime.now().minusSeconds(1));
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("Дата начала не может быть меньше текущей даты");
+        assertThat(violations.toString()).contains("Дата окончания не может быть меньше текущей даты");
     }
 
     @Test
@@ -90,6 +93,7 @@ public class BookingDtoInTest {
         bookingDtoIn.setItemId(null);
         Set<ConstraintViolation<BookingDtoIn>> violations = validator.validate(bookingDtoIn);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
+        assertTrue((violations.toString()).contains("interpolatedMessage='не должно равняться null'")
+                || (violations.toString()).contains("interpolatedMessage='must not be null'"));
     }
 }
