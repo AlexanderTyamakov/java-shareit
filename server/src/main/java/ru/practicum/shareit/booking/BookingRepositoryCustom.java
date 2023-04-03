@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.Item;
