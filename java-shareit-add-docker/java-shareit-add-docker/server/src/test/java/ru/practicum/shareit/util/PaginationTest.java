@@ -1,8 +1,9 @@
-package ru.practicum.shareit.utils;
+package ru.practicum.shareit.util;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
+import ru.practicum.shareit.utils.Pagination;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
