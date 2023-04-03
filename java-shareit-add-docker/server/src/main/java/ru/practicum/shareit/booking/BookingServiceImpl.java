@@ -57,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
         log.info("Получение списка бронирования для пользователя id = " + userId + " по state = " + state);
         User user = handleOptionalUser(userRepository.findById(userId), userId);
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        Pagination pageRequest = new Pagination(from,size,sort);
+        Pagination pageRequest = new Pagination(from, size, sort);
         List<Booking> bookings = getPageBookings(state, user, pageRequest);
         log.info("Получен список бронирования для пользователя id = " + userId + " : " + bookings);
         return bookings.stream()
@@ -81,7 +81,7 @@ public class BookingServiceImpl implements BookingService {
         handleOptionalUser(userRepository.findById(userId), userId);
         List<Item> ownerItems = itemRepository.findAllByOwnerIsOrderById(userId);
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        Pagination pageRequest = new Pagination(from,size,sort);
+        Pagination pageRequest = new Pagination(from, size, sort);
         List<Booking> bookings = getPageOwnerBookings(state, ownerItems, pageRequest);
         log.info("Получен список бронирования для владельца id = " + userId + " : " + bookings);
         return bookings.stream()

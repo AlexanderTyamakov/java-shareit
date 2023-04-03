@@ -142,7 +142,6 @@ public class BookingServiceTest {
         UserDto ownerDto = userService.saveUser(userDto1);
         UserDto newUserDto = userService.saveUser(userDto2);
         UserDto userDto3 = new UserDto(103L, "Alex", "alexd@alex.ru");
-        userDto3 = userService.saveUser(userDto3);
         ItemDto newItemDto = itemService.saveItem(ownerDto.getId(), itemDto1);
         BookingDtoIn bookingDtoIn = new BookingDtoIn(
                 LocalDateTime.of(2025, 12, 25, 12, 00, 00),
