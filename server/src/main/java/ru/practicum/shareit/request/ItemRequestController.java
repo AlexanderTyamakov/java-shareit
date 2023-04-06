@@ -3,7 +3,6 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -41,7 +40,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDtoIn saveRequest(@RequestHeader("X-Sharer-User-Id") long userId,
-                                        @RequestBody @Validated ItemRequestDtoIn itemRequestDtoIn) {
+                                        @RequestBody ItemRequestDtoIn itemRequestDtoIn) {
         return itemRequestService.saveRequest(userId, itemRequestDtoIn, LocalDateTime.now());
     }
 
