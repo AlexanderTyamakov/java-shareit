@@ -10,5 +10,3 @@ ENTRYPOINT ["/bin/sh", "-c", "java $JAVA_OPTS -jar /shareit-server.jar"]
 #RUN chmod 777 /var/log/shareit/server/app.log
 
 VOLUME /var/log/shareit/server
-
-#CMD ["java", "-Dlogging.level.root=INFO", "-jar", "/shareit-server.jar"]
