@@ -4,6 +4,8 @@ services:
     build: gateway
     image: shareit-gateway
     container_name: shareit-gateway
+    volumes:
+      - /var/log/shareit/gateway
     ports:
       - "8080:8080"
       - "5006:5006"
@@ -17,6 +19,8 @@ services:
     build: server
     image: shareit-server
     container_name: shareit-server
+    volumes:
+      - /var/log/shareit/server
     ports:
       - "9090:9090"
       - "5005:5005"
@@ -31,9 +35,10 @@ services:
   db:
     image: postgres:13.7-alpine
     container_name: db
-    command: ["postgres", "-c", "log_statement=all"]
+    command: [ "postgres", "-c", "log_statement=all", "-c", "logging_collector=on", "-c", "log_directory=/var/log/postgres" ]
     volumes:
-      - /var/lib/postgresql/data/
+      - db_data:/var/lib/postgresql/data/
+      - ./logs:/var/log/postgres
     ports:
       - "6541:5432"
     environment:
@@ -41,3 +46,6 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+
+volumes:
+  db_data:
