@@ -33,10 +33,11 @@ services:
   db:
     image: postgres:13.7-alpine
     container_name: db
-    command: [ "postgres", "-c", "log_statement=all", "-c", "logging_collector=on", "-c", "log_directory=/var/log/postgres" ]
+    command: ["postgres", "-c", "log_statement=all"]
     volumes:
       - db_data:/var/lib/postgresql/data/
-      - ./logs:/var/log/postgres
+      - logs:/var/log/postgres
+    restart: always
     ports:
       - "6541:5432"
     environment:
@@ -44,6 +45,12 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 volumes:
   db_data:
+  logs:
