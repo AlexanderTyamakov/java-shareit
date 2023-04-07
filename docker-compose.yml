@@ -33,12 +33,12 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
 
 
-
   db:
     image: postgres:13.7-alpine
     container_name: db
+    command: [ "postgres", "-c", "log_statement=all" ]
     volumes:
-      - /var/lib/postgres/data
+      - /var/lib/postgresql/data/
     ports:
       - "6541:5432"
     environment:
