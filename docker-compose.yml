@@ -14,8 +14,6 @@ services:
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
 
-
-
   server:
     build: server
     image: shareit-server
@@ -32,13 +30,13 @@ services:
       - SPRING_DATASOURCE_USER=root
       - SPRING_DATASOURCE_PASSWORD=root
 
-
-
   db:
     image: postgres:13.7-alpine
     container_name: db
+    command: [ "postgres", "-c", "log_statement=all", "-c", "logging_collector=on", "-c", "log_directory=/var/log/postgres" ]
     volumes:
-      - /var/lib/postgres/data
+      - db_data:/var/lib/postgresql/data/
+      - ./logs:/var/log/postgres
     ports:
       - "6541:5432"
     environment:
@@ -46,3 +44,6 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+
+volumes:
+  db_data:
